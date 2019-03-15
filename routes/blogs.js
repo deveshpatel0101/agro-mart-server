@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const jwt = require('jsonwebtoken');
+const geolib = require('geolib');
 
 const User = require('../model/user');
 const Shared = require('../model/shared');
@@ -14,10 +15,33 @@ router.get('/', (req, res) => {
         } else {
             User.findById(decoded.id).then(result => {
                 if (result) {
-                    return res.status(200).json({
-                        message: 'successfull',
-                        blogs: result.blogs
-                    });
+                    if (result.userType === 'farmer') {
+                        return res.status(200).json({
+                            message: 'successfull',
+                            blogs: result.blogs
+                        });
+                    } else if (result.userType === 'customer') {
+                        const currPosition = result.position;
+                        let blogs = [];
+                        Shared.find().limit(20).then(resultShared => {
+                            for (let i = 0; i < resultShared.length; i++) {
+                                const distance = geolib.getDistance(currPosition, resultShared[i].position);
+                                console.log(distance);
+                                if (distance < 6000) {
+                                    blogs.push(resultShared[i]);
+                                }
+                            }
+                            return res.status(200).json({
+                                message: 'successful',
+                                blogs
+                            });
+                        }).catch(err => {
+                            return res.status(200).json({
+                                error: 'unsuccessful',
+                                errorMessage: err
+                            });
+                        });
+                    }
                 } else {
                     return res.status(200).json({
                         error: 'unsuccessful'

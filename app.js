@@ -26,6 +26,30 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+app.get('/dashboard', (_, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
+app.get('/user/login', (_, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
+app.get('/user/register', (_, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
+app.get('/create', (_, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
+app.get('/public/shared', (_, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
+app.get('/error', (_, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
 app.use('/user/auth/google', google);
 
 app.use('/user/blogs', blog);

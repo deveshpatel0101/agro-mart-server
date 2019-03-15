@@ -25,6 +25,10 @@ let SharedSchema = new Schema({
     lastModified: {
         type: Number,
         required: true
+    },
+    position: {
+        type: Object,
+        required: true
     }
 });
 

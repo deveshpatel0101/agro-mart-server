@@ -1,8 +1,10 @@
 const router = require("express").Router();
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
+const geolib = require('geolib');
 
 const User = require('../model/user');
+const Shared = require('../model/shared');
 
 router.post('/', (req, res) => {
     let googleUser = {
@@ -78,12 +80,36 @@ router.post('/', (req, res) => {
                 }
             } else {
                 const jwtToken = generateJwt(result.id);
-                return res.status(200).json({
-                    success: true,
-                    successMessage: 'user already exists',
-                    jwtToken: jwtToken,
-                    blogs: result.blogs
-                });
+                if (result.userType === 'farmer') {
+                    return res.status(200).json({
+                        success: true,
+                        successMessage: 'user already exists',
+                        jwtToken: jwtToken,
+                        blogs: result.blogs
+                    });
+                } else if (result.userType === 'customer') {
+                    const currPosition = result.position;
+                    let blogs = [];
+                    Shared.find().limit(20).then(resultShared => {
+                        for (let i = 0; i < resultShared.length; i++) {
+                            const distance = geolib.getDistance(currPosition, resultShared[i].position);
+                            console.log(distance);
+                            if (distance < 6000) {
+                                blogs.push(resultShared[i]);
+                            }
+                        }
+                        return res.status(200).json({
+                            message: 'successful',
+                            blogs,
+                            jwtToken
+                        });
+                    }).catch(err => {
+                        return res.status(200).json({
+                            error: 'unsuccessful',
+                            errorMessage: err
+                        });
+                    });
+                }
             }
         }).catch(error => {
             return res.status(200).json({

@@ -36,7 +36,7 @@ router.post('/shared', (req, res) => {
                                     });
                                 });
                             } else {
-                                let sharedBlog = new Shared({...req.body });
+                                let sharedBlog = new Shared({...req.body, position: userResult.position });
                                 sharedBlog.save().then(sharedResult => {
                                     if (sharedResult) {
                                         return res.status(200).json({
