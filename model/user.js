@@ -32,6 +32,14 @@ let UserSchema = new Schema({
     },
     blogs: {
         type: Array
+    },
+    userType: {
+        type: String,
+        required: true
+    },
+    position: {
+        type: Object,
+        required: true
     }
 });
 

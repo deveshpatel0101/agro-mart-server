@@ -11,7 +11,9 @@ router.post('/', (req, res) => {
         profileImage: req.body.profileImage,
         accountType: 'google',
         googleId: req.body.googleId,
-        accessToken: req.body.accessToken
+        accessToken: req.body.accessToken,
+        position: req.body.position,
+        userType: req.body.userType
     }
     if (googleUser.username && googleUser.username.trim().length < 3) {
         return res.status(200).json({
@@ -41,27 +43,39 @@ router.post('/', (req, res) => {
     } else {
         User.findOne({ email: googleUser.email }).then(result => {
             if (!result) {
-                new User(googleUser).save().then(savedResult => {
-                    if (!savedResult) {
+                if (!googleUser.userType) {
+                    return res.status(200).json({
+                        errorUserType: true,
+                        errorMessage: 'not a valid user type'
+                    });
+                } else if (!googleUser.position || !googleUser.position.latitude || !googleUser.position.longitude) {
+                    return res.status(200).json({
+                        errorPosition: true,
+                        errorMessage: 'user location is required for new user'
+                    });
+                } else {
+                    new User(googleUser).save().then(savedResult => {
+                        if (!savedResult) {
+                            return res.status(200).json({
+                                error: true,
+                                errorMessage: 'something went wrong while saving user info in our database'
+                            });
+                        } else {
+                            const jwtToken = generateJwt(savedResult.id);
+                            return res.status(200).json({
+                                success: true,
+                                successMessage: 'user created',
+                                jwtToken: jwtToken,
+                                blogs: []
+                            });
+                        }
+                    }).catch(error => {
                         return res.status(200).json({
                             error: true,
-                            errorMessage: 'something went wrong while saving user info in our database'
+                            errorMessage: error.message
                         });
-                    } else {
-                        const jwtToken = generateJwt(savedResult.id);
-                        return res.status(200).json({
-                            success: true,
-                            successMessage: 'user created',
-                            jwtToken: jwtToken,
-                            blogs: []
-                        });
-                    }
-                }).catch(error => {
-                    return res.status(200).json({
-                        error: true,
-                        errorMessage: error.message
                     });
-                });
+                }
             } else {
                 const jwtToken = generateJwt(result.id);
                 return res.status(200).json({
