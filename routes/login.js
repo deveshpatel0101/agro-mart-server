@@ -8,41 +8,50 @@ const User = require('../model/user');
 const Shared = require('../model/shared');
 
 router.post('/', (req, res) => {
-    if (!validator.isEmail(req.body.email)) {
+    if (!req.body.email || !validator.isEmail(req.body.email)) {
         return res.status(200).json({
-            errorEmail: true,
-            errorMessage: 'not a valid email'
+            error: true,
+            errorType: 'email',
+            errorMessage: 'Not a valid email.'
+        });
+    } else if (!req.body.password) {
+        return res.status(200).json({
+            error: true,
+            errorType: 'password',
+            errorMessage: 'Password is required.'
         });
     } else {
         User.findOne({ email: req.body.email }).then(result => {
             if (!result) {
                 return res.status(200).json({
-                    errorEmail: true,
-                    errorMessage: 'user does not exist'
+                    error: true,
+                    errorType: 'email',
+                    errorMessage: 'User does not exist.'
                 });
             } else {
                 bcrypt.compare(req.body.password, result.password, (err, isPasswordCorrect) => {
                     if (err) {
                         return res.status(200).json({
                             error: true,
-                            errorMessage: 'something went wrong while comparing the password'
+                            errorType: 'unexpected',
+                            errorMessage: err
                         });
                     } else if (!isPasswordCorrect) {
                         return res.status(200).json({
-                            errorPassword: true,
-                            errorMessage: 'wrong password'
+                            error: true,
+                            errorType: 'password',
+                            errorMessage: 'Wrong password.'
                         });
                     } else {
                         const jwtPayload = {
                             id: result.id,
-                            logged: true
+                            loggedIn: true
                         }
-                        let token = jwt.sign(jwtPayload, process.env.JWT_KEY, { expiresIn: '1h' });
+                        const jwtToken = jwt.sign(jwtPayload, process.env.JWT_KEY, { expiresIn: '1h' });
                         if (result.userType === 'farmer') {
                             return res.status(200).json({
-                                success: true,
-                                successMessage: 'logged in',
-                                token: token,
+                                error: false,
+                                jwtToken,
                                 blogs: result.blogs
                             });
                         } else if (result.userType === 'customer') {
@@ -57,13 +66,14 @@ router.post('/', (req, res) => {
                                     }
                                 }
                                 return res.status(200).json({
-                                    message: 'successful',
-                                    blogs,
-                                    token
+                                    error: false,
+                                    jwtToken,
+                                    blogs
                                 });
                             }).catch(err => {
                                 return res.status(200).json({
-                                    error: 'unsuccessful',
+                                    error: true,
+                                    errorType: 'unexpected',
                                     errorMessage: err
                                 });
                             });
@@ -74,6 +84,7 @@ router.post('/', (req, res) => {
         }).catch(err => {
             return res.status(200).json({
                 error: true,
+                errorType: 'unexpected',
                 errorMessage: err
             });
         });

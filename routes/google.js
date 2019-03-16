@@ -20,61 +20,86 @@ router.post('/', (req, res) => {
     if (googleUser.username && googleUser.username.trim().length < 3) {
         return res.status(200).json({
             error: true,
-            errorMessage: 'not a valid username'
+            errorType: 'username',
+            errorMessage: 'Not a valid username. It must of at least 3 characters long.'
         });
     } else if (!validator.isEmail(googleUser.email)) {
         return res.status(200).json({
             error: true,
-            errorMessage: 'not a valid email'
+            errorType: 'email',
+            errorMessage: 'Not a valid email.'
         });
     } else if (!googleUser.profileImage && !googleUser.profileImage.trim().length > 0) {
         return res.status(200).json({
             error: true,
-            errorMessage: 'not a valid profile image link'
+            errorType: 'profileImage',
+            errorMessage: 'Not a valid profile image link.'
         });
     } else if (!googleUser.googleId && !googleUser.googleId.trim().length > 0) {
         return res.status(200).json({
             error: true,
-            errorMessage: 'not a valid google id'
+            errorType: 'googleId',
+            errorMessage: 'Not a valid google ID.'
         });
     } else if (!googleUser.accessToken && !googleUser.accessToken.trim().length > 0) {
         return res.status(200).json({
             error: true,
-            errorMessage: 'not a valid access token'
+            errorType: 'accessToken',
+            errorMessage: 'Not a valid access token.'
         });
     } else {
         User.findOne({ email: googleUser.email }).then(result => {
             if (!result) {
-                if (!googleUser.userType) {
+                if (!googleUser.userType || (googleUser.userType !== 'farmer' && googleUser.userType !== 'customer')) { // validate user type must a farmer of customer only
                     return res.status(200).json({
-                        errorUserType: true,
-                        errorMessage: 'not a valid user type'
+                        error: true,
+                        errorType: 'userType',
+                        errorMessage: 'Not a valid user type. It must either a farmer or customer.'
                     });
                 } else if (!googleUser.position || !googleUser.position.latitude || !googleUser.position.longitude) {
                     return res.status(200).json({
-                        errorPosition: true,
-                        errorMessage: 'user location is required for new user'
+                        error: true,
+                        errorType: 'position',
+                        errorMessage: 'Not a valid position. It must include latitude and longitude parameters.'
                     });
                 } else {
                     new User(googleUser).save().then(savedResult => {
-                        if (!savedResult) {
+                        const jwtToken = generateJwt(savedResult.id);
+                        if (savedResult.userType === 'farmer') {
                             return res.status(200).json({
-                                error: true,
-                                errorMessage: 'something went wrong while saving user info in our database'
-                            });
-                        } else {
-                            const jwtToken = generateJwt(savedResult.id);
-                            return res.status(200).json({
-                                success: true,
-                                successMessage: 'user created',
-                                jwtToken: jwtToken,
+                                error: false,
+                                jwtToken,
                                 blogs: []
                             });
+                        } else if (savedResult.userType === 'customer') {
+                            const currPosition = savedResult.position;
+                            let blogs = [];
+                            Shared.find().limit(20).then(resultShared => {
+                                for (let i = 0; i < resultShared.length; i++) {
+                                    const distance = geolib.getDistance(currPosition, resultShared[i].position);
+                                    console.log(distance);
+                                    if (distance < 6000) {
+                                        blogs.push(resultShared[i]);
+                                    }
+                                }
+                                return res.status(200).json({
+                                    error: false,
+                                    jwtToken,
+                                    blogs
+                                });
+                            }).catch(err => {
+                                return res.status(200).json({
+                                    error: true,
+                                    errorType: 'unexpected',
+                                    errorMessage: err
+                                });
+                            });
                         }
-                    }).catch(error => {
+                    }).catch(err => {
                         return res.status(200).json({
                             error: true,
-                            errorMessage: error.message
+                            errorType: 'unexpected',
+                            errorMessage: err
                         });
                     });
                 }
@@ -82,9 +107,8 @@ router.post('/', (req, res) => {
                 const jwtToken = generateJwt(result.id);
                 if (result.userType === 'farmer') {
                     return res.status(200).json({
-                        success: true,
-                        successMessage: 'user already exists',
-                        jwtToken: jwtToken,
+                        error: false,
+                        jwtToken,
                         blogs: result.blogs
                     });
                 } else if (result.userType === 'customer') {
@@ -99,26 +123,27 @@ router.post('/', (req, res) => {
                             }
                         }
                         return res.status(200).json({
-                            message: 'successful',
-                            blogs,
-                            jwtToken
+                            error: false,
+                            jwtToken,
+                            blogs
                         });
                     }).catch(err => {
                         return res.status(200).json({
-                            error: 'unsuccessful',
+                            error: true,
+                            errorType: 'unexpected',
                             errorMessage: err
                         });
                     });
                 }
             }
-        }).catch(error => {
+        }).catch(err => {
             return res.status(200).json({
                 error: true,
-                errorMessage: error.message
+                errorType: 'unexpected',
+                errorMessage: err
             });
         });
     }
-
 });
 
 function generateJwt(id) {

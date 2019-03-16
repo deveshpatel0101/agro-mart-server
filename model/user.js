@@ -14,28 +14,32 @@ let UserSchema = new Schema({
         unique: true
     },
     password: {
-        type: String
+        type: String,
+        required: true
     },
     profileImage: {
         type: String,
+        required: function() { return this.accountType === 'google'}
     },
     accountType: {
         type: String,
         required: true,
-        default: 'local'
     },
     accessToken: {
-        type: String
+        type: String,
+        required: function() { return this.accountType === 'google'}
     },
     refreshToken: {
-        type: String
+        type: String,
+        required: function() { return this.accountType === 'google'}
     },
     blogs: {
         type: Array
     },
     userType: {
         type: String,
-        required: true
+        required: true,
+        enum: ['farmer', 'customer']
     },
     position: {
         type: Object,
