@@ -29,11 +29,6 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use((req, res, next) => {
-    console.log(req.url);
-    next();
-});
-
 app.get('/dashboard', (_, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });

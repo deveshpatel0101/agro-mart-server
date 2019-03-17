@@ -5,6 +5,7 @@ const User = require('../model/user');
 const Shared = require('../model/shared');
 const auth = require('../middleware/auth');
 
+// returns an array of complete blogs
 router.get('/', auth, (req, res) => {
     User.findById(req.user.id).then(result => {
         if (result) {
@@ -51,22 +52,25 @@ router.get('/', auth, (req, res) => {
     });
 });
 
+// add a new blog to the blogs array
 router.post('/', auth, (req, res) => {
+    // TODO: give blog id using uuid here and return the blog.
     User.findById(req.user.id).then(result => {
-        // TODO: make sure to use the efficient method of updating arrays in mongodb and return the updated array in response.
         if (result) {
             User.findOneAndUpdate({
                 _id: req.user.id
             }, {
-                $set: {
-                    blogs: [...result.blogs, req.body.blogs]
+                $push: {
+                    blogs: {...req.body.blogs }
                 }
             }, {
-                rawResult: true
+                new: true
             }).then(updatedResult => {
                 return res.status(200).json({
                     error: false,
-                    updatedBlogs: updatedResult.value.blogs,
+                    updated: true,
+                    blogs: updatedResult.blogs,
+                    addedBlog: {...req.body.blogs }
                 });
             }).catch(err => {
                 return res.status(200).json({
@@ -91,37 +95,52 @@ router.post('/', auth, (req, res) => {
     });
 });
 
+// updates a blog specified by blog object. id is necessary.
 router.put('/', auth, (req, res) => {
+    // TODO: do not allow to update id of blog. change architecture if necessary.
     User.findById(req.user.id).then(result => {
-        // TODO: make sure to use efficient method of updating item of array in mongodb. Return the update item in response.
         let blogsArr = result.blogs;
+        let actualBlog = undefined,
+            updatedBlog = undefined;
         if (result) {
             blogsArr = blogsArr.map(blog => {
                 if (blog.id === req.body.blogs.id) {
+                    actualBlog = blog;
+                    updatedBlog = {...blog, ...req.body.blogs };
                     return {...blog, ...req.body.blogs }
                 } else {
                     return blog;
                 }
             });
-            User.findOneAndUpdate({
-                _id: req.user.id
-            }, {
-                $set: {
-                    blogs: blogsArr
-                }
-            }).then((updatedResult) => {
+            Promise.all([
+                User.findOneAndUpdate({
+                    _id: req.user.id
+                }, {
+                    $set: {
+                        blogs: blogsArr
+                    }
+                }, {
+                    new: true
+                }),
+                actualBlog && actualBlog.shared ? Shared.findOneAndUpdate({
+                    blogId: req.body.blogs.id
+                }, {
+                    $set: {...req.body.blogs }
+                }) : null
+            ]).then(values => {
                 return res.status(200).json({
                     error: false,
                     updated: true,
-                    blogs: blogsArr
+                    blogs: values[0].blogs,
+                    updatedBlog
                 });
-            }).catch((err) => {
+            }).catch(err => {
                 return res.status(200).json({
                     error: true,
                     errorType: 'unexpected',
                     errorMessage: err
                 });
-            });
+            })
         } else {
             return res.status(200).json({
                 error: true,
@@ -138,9 +157,9 @@ router.put('/', auth, (req, res) => {
     });
 });
 
+// deletes a specific blog specified by blogId in request body
 router.delete('/', auth, (req, res) => {
     User.findById(req.user.id).then(userResult => {
-        // TODO: make sure to use efficient method of deleting an item from array in mongodb. Return the deleted item in response.
         if (!userResult) {
             return res.status(200).json({
                 error: true,
@@ -159,40 +178,35 @@ router.delete('/', auth, (req, res) => {
                 }
             });
             if (deletedBlog) {
-                User.findOneAndUpdate({
-                    _id: req.user.id
-                }, {
-                    $set: {
-                        blogs: blogsArr
-                    }
-                }).then(deletedResult => {
-                    if (deletedResult) {
-                        if (deletedBlog.shared) {
-                            Shared.findOneAndRemove({ blogId: req.body.blogId }).then(deletedShared => {
-                                if (deletedShared) {
-                                    return res.status(200).json({
-                                        error: false
-                                    });
-                                }
-                            }).catch(err => {
-                                return res.status(200).json({
-                                    error: true,
-                                    errorType: 'unexpected',
-                                    errorMessage: err
-                                });
-                            });
-                        } else {
-                            return res.status(200).json({
-                                error: false
-                            });
+                Promise.all([
+                    User.findOneAndUpdate({
+                        _id: req.user.id
+                    }, {
+                        $set: {
+                            blogs: blogsArr
                         }
-                    }
+                    }, {
+                        new: true
+                    }),
+                    deletedBlog.shared ? Shared.findOneAndRemove({ blogId: req.body.blogId }) : null
+                ]).then(values => {
+                    return res.status(200).json({
+                        error: false,
+                        blogs: values[0].blogs,
+                        deletedBlog
+                    });
                 }).catch(err => {
                     return res.status(200).json({
                         error: true,
                         errorType: 'unexpected',
                         errorMessage: err
                     });
+                });
+            } else {
+                return res.status(200).json({
+                    error: true,
+                    errorType: 'blog',
+                    errorMessage: 'Specified item not found.'
                 });
             }
         }

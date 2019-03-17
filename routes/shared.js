@@ -5,59 +5,55 @@ const User = require('../model/user');
 const auth = require('../middleware/auth');
 
 router.post('/shared', auth, (req, res) => {
-    // TODO: make sure to use efficient method of updating item from array in mongodb. Return updated item in response.
     User.findById(req.user.id).then(userResult => {
         if (userResult) {
-            let finalBlogsArr = userResult.blogs.map(blog => blog.id === req.body.blogId ? {...blog, shared: req.body.shared } : blog);
-            User.findOneAndUpdate({ _id: req.user.id }, {
-                $set: {
-                    blogs: finalBlogsArr
-                }
-            }).then(finalResult => {
-                if (finalResult) {
-                    if (!req.body.shared) {
-                        Shared.findOneAndRemove({ blogId: req.body.blogId }).then(deleteBlogResult => {
-                            if (deleteBlogResult) {
-                                return res.status(200).json({
-                                    error: false,
-                                    message: 'successful delete',
-                                    result: deleteBlogResult
-                                });
-                            }
-                        }).catch(err => {
-                            console.log(err);
-                            return res.status(200).json({
-                                error: true,
-                                errorType: 'unexpected',
-                                errorMessage: err
-                            });
-                        });
-                    } else {
-                        let sharedBlog = new Shared({...req.body, position: userResult.position });
-                        sharedBlog.save().then(sharedResult => {
-                            if (sharedResult) {
-                                return res.status(200).json({
-                                    error: false,
-                                    message: 'successful',
-                                    result: sharedResult
-                                });
-                            }
-                        }).catch(err => {
-                            return res.status(200).json({
-                                error: true,
-                                errorType: 'unexpected',
-                                errorMessage: err
-                            });
-                        });
+            // doNothing flag is used to know whether the actual shared value of db and shared value from request conflicts. if so then only update the db.
+            let doNothing = false;
+            let finalBlogsArr = userResult.blogs.map(blog => {
+                if (blog.id === req.body.blogId) {
+                    if (blog.shared === req.body.shared) {
+                        doNothing = true;
                     }
-                } else {
+                    return {...blog, shared: req.body.shared }
+                }
+                return blog
+            });
+            let blog;
+            if (req.body.shared) {
+                blog = userResult.blogs.find(blog => blog.id === req.body.blogId);
+                blog = {...blog, blogId: blog.id, position: {...userResult.position }, shared: req.body.shared }
+                delete blog.id;
+            }
+            if (!doNothing) {
+                Promise.all([
+                    User.findOneAndUpdate({ _id: req.user.id }, {
+                        $set: {
+                            blogs: finalBlogsArr
+                        }
+                    }, {
+                        new: true
+                    }),
+                    req.body.shared ? new Shared({...blog }).save() : Shared.findOneAndDelete({ blogId: req.body.blogId })
+                ]).then(values => {
+                    return res.status(200).json({
+                        error: false,
+                        message: 'Updated successfully.',
+                        result: values[0].blogs
+                    });
+                }).catch(err => {
                     return res.status(200).json({
                         error: true,
-                        errorType: 'id',
-                        error: 'Unable to find the user from database.'
+                        errorType: 'unexpected',
+                        errorMessage: err
                     });
-                }
-            });
+                });
+            } else {
+                return res.status(200).json({
+                    error: false,
+                    message: 'Updated successfully.',
+                    result: userResult.blogs
+                });
+            }
         } else {
             return res.status(200).json({
                 error: true,
@@ -76,7 +72,6 @@ router.post('/shared', auth, (req, res) => {
 
 router.get('/shared/blog', auth, (req, res) => {
     if (req.query.id) {
-        // TODO: make sure to use efficient method of updating item in mongodb. Return updated item in response.
         Shared.findOne({ blogId: req.query.id }).then(result => {
             if (result) {
                 return res.status(200).json({
