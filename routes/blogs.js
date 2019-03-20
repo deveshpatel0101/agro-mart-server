@@ -1,9 +1,11 @@
 const router = require('express').Router();
 const geolib = require('geolib');
+const Joi = require('joi');
 
 const User = require('../model/user');
 const Shared = require('../model/shared');
 const auth = require('../middleware/auth');
+const { createBlogSchema, deleteBlogSchema, updateBlogSchema } = require('../validators/blogs');
 
 // returns an array of complete blogs
 router.get('/', auth, (req, res) => {
@@ -55,13 +57,23 @@ router.get('/', auth, (req, res) => {
 // add a new blog to the blogs array
 router.post('/', auth, (req, res) => {
     // TODO: give blog id using uuid here and return the blog.
+    const obj = { id: req.body.blogId, ...req.body, shared: false };
+    delete obj.blogId;
+    const result = Joi.validate(obj, createBlogSchema);
+    if (result.error) {
+        return res.status(200).json({
+            error: true,
+            errorType: result.error.details[0].path[0],
+            errorMessage: result.error.details[0].message
+        });
+    }
     User.findById(req.user.id).then(result => {
         if (result) {
             User.findOneAndUpdate({
                 _id: req.user.id
             }, {
                 $push: {
-                    blogs: {...req.body.blogs }
+                    blogs: obj
                 }
             }, {
                 new: true
@@ -70,7 +82,7 @@ router.post('/', auth, (req, res) => {
                     error: false,
                     updated: true,
                     blogs: updatedResult.blogs,
-                    addedBlog: {...req.body.blogs }
+                    addedBlog: obj
                 });
             }).catch(err => {
                 return res.status(200).json({
@@ -98,16 +110,24 @@ router.post('/', auth, (req, res) => {
 // updates a blog specified by blog object. id is necessary.
 router.put('/', auth, (req, res) => {
     // TODO: do not allow to update id of blog. change architecture if necessary.
+    const result = Joi.validate(req.body, updateBlogSchema);
+    if (result.error) {
+        return res.status(200).json({
+            error: true,
+            errorType: result.error.details[0].path[0],
+            errorMessage: result.error.details[0].message
+        });
+    }
     User.findById(req.user.id).then(result => {
         let blogsArr = result.blogs;
         let actualBlog = undefined,
             updatedBlog = undefined;
         if (result) {
             blogsArr = blogsArr.map(blog => {
-                if (blog.id === req.body.blogs.id) {
+                if (blog.id === req.body.blogId) {
                     actualBlog = blog;
-                    updatedBlog = {...blog, ...req.body.blogs };
-                    return {...blog, ...req.body.blogs }
+                    updatedBlog = {...blog, ...req.body.values };
+                    return {...blog, ...req.body.values }
                 } else {
                     return blog;
                 }
@@ -159,6 +179,14 @@ router.put('/', auth, (req, res) => {
 
 // deletes a specific blog specified by blogId in request body
 router.delete('/', auth, (req, res) => {
+    const result = Joi.validate(req.body, deleteBlogSchema);
+    if (result.error) {
+        return res.status(200).json({
+            error: true,
+            errorType: result.error.details[0].path[0],
+            errorMessage: result.error.details[0].message
+        });
+    }
     User.findById(req.user.id).then(userResult => {
         if (!userResult) {
             return res.status(200).json({

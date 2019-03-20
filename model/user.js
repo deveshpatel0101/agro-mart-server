@@ -15,11 +15,11 @@ let UserSchema = new Schema({
     },
     password: {
         type: String,
-        required: true
+        required: function() { return this.accountType !== 'google' }
     },
     profileImage: {
         type: String,
-        required: function() { return this.accountType === 'google'}
+        // required: function() { return this.accountType === 'google'}
     },
     accountType: {
         type: String,
@@ -27,11 +27,11 @@ let UserSchema = new Schema({
     },
     accessToken: {
         type: String,
-        required: function() { return this.accountType === 'google'}
+        required: function() { return this.accountType === 'google' }
     },
     refreshToken: {
         type: String,
-        required: function() { return this.accountType === 'google'}
+        // required: function() { return this.accountType === 'google'}
     },
     blogs: {
         type: Array

@@ -1,28 +1,43 @@
 const router = require('express').Router();
+const Joi = require('joi');
 
 const Shared = require('../model/shared');
 const User = require('../model/user');
 const auth = require('../middleware/auth');
+const { sharedSchema } = require('../validators/shared');
 
 router.post('/shared', auth, (req, res) => {
+    const result = Joi.validate(req.body, sharedSchema);
+    if (result.error) {
+        return res.status(200).json({
+            error: true,
+            errorType: result.error.details[0].path[0],
+            errorMessage: result.error.details[0].message
+        });
+    }
     User.findById(req.user.id).then(userResult => {
         if (userResult) {
             // doNothing flag is used to know whether the actual shared value of db and shared value from request conflicts. if so then only update the db.
             let doNothing = false;
             let finalBlogsArr = userResult.blogs.map(blog => {
                 if (blog.id === req.body.blogId) {
-                    if (blog.shared === req.body.shared) {
+                    if (blog.shared === req.body.values.shared) {
                         doNothing = true;
                     }
-                    return {...blog, shared: req.body.shared }
+                    return {...blog, shared: req.body.values.shared }
                 }
                 return blog
             });
             let blog;
-            if (req.body.shared) {
+            if (req.body.values.shared && !doNothing) {
                 blog = userResult.blogs.find(blog => blog.id === req.body.blogId);
-                blog = {...blog, blogId: blog.id, position: {...userResult.position }, shared: req.body.shared }
-                delete blog.id;
+                if (blog) {
+                    blog = {...blog, blogId: blog.id, position: {...userResult.position }, shared: req.body.values.shared }
+                    delete blog.id;
+                }
+                if(!blog) {
+                    doNothing = true;
+                }
             }
             if (!doNothing) {
                 Promise.all([
@@ -33,7 +48,7 @@ router.post('/shared', auth, (req, res) => {
                     }, {
                         new: true
                     }),
-                    req.body.shared ? new Shared({...blog }).save() : Shared.findOneAndDelete({ blogId: req.body.blogId })
+                    req.body.values.shared ? new Shared({...blog }).save() : Shared.findOneAndDelete({ blogId: req.body.blogId })
                 ]).then(values => {
                     return res.status(200).json({
                         error: false,
