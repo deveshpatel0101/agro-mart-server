@@ -1,24 +1,24 @@
 const Joi = require('joi');
 
 module.exports.createBlogSchema = {
-    id: Joi.string().min(5).max(1024).required(),
-    title: Joi.string().min(3).required(),
-    description: Joi.string().min(3).required(),
+    blogId: Joi.string().guid({ version: ["uuidv4"] }).required(),
+    title: Joi.string().min(1).required(),
+    description: Joi.string().min(1).required(),
     createdAt: Joi.date().required(),
     lastModified: Joi.date().required(),
     shared: Joi.boolean().equal(false).required()
 }
 
 module.exports.updateBlogSchema = {
-    blogId: Joi.string().min(5).max(1024).required(),
+    blogId: Joi.string().guid({ version: ["uuidv4"] }).required(),
     values: Joi.object({
-        title: Joi.string().min(3),
-        description: Joi.string().min(3),
+        title: Joi.string().min(1),
+        description: Joi.string().min(1),
         createdAt: Joi.date(),
         lastModified: Joi.date()
-    }).required().disallow(["shared"])
+    }).required().allow(["title", "description", "createdAt", "lastModified"])
 }
 
 module.exports.deleteBlogSchema = {
-    blogId: Joi.string().min(5).max(50).required()
+    blogId: Joi.string().guid({ version: ["uuidv4"] }).required()
 }

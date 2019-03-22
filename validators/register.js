@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const passwordRegex = /^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{6,})/;
+const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).{4,}$/;
 
 module.exports.registerSchema = {
     username: Joi.string().min(3).max(50).required(),
@@ -12,5 +12,6 @@ module.exports.registerSchema = {
         latitude: Joi.number().min(-90).max(90).required(),
         longitude: Joi.number().min(-180).max(180).required()
     }).required(),
-    accountType: Joi.string().regex(/^local$|^google$/).required()
+    accountType: Joi.string().regex(/^local$/).required(),
+    blogs: Joi.array().length(0).required()
 }

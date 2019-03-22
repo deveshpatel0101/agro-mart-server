@@ -57,8 +57,7 @@ router.get('/', auth, (req, res) => {
 // add a new blog to the blogs array
 router.post('/', auth, (req, res) => {
     // TODO: give blog id using uuid here and return the blog.
-    const obj = { id: req.body.blogId, ...req.body, shared: false };
-    delete obj.blogId;
+    const obj = { ...req.body, shared: false };
     const result = Joi.validate(obj, createBlogSchema);
     if (result.error) {
         return res.status(200).json({

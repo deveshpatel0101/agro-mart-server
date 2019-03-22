@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test": "jest --watchAll --verbose",
     "start": "node app.js",
     "server": "nodemon bin/dev.js"
   },
@@ -20,8 +21,12 @@
     "joi": "^14.3.1",
     "jsonwebtoken": "^8.3.0",
     "mongoose": "^5.4.19",
+    "uuid": "^3.3.2",
     "validator": "^10.4.0",
     "winston": "^3.2.1",
     "winston-mongodb": "^5.0.0"
+  },
+  "devDependencies": {
+    "jest": "^24.5.0"
   }
 }

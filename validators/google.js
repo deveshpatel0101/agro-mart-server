@@ -12,5 +12,6 @@ module.exports.googleSchema = {
         latitude: Joi.number().min(-90).max(90).required(),
         longitude: Joi.number().min(-180).max(180).required()
     }).required(),
-    userType: Joi.string().regex(/^farmer$|^customer$/)
+    userType: Joi.string().regex(/^farmer$|^customer$/).required(),
+    blogs: Joi.array().length(0).required()
 }
