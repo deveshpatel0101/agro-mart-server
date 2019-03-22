@@ -6,7 +6,7 @@ const User = require('../model/user');
 const auth = require('../middleware/auth');
 const { sharedSchema } = require('../validators/shared');
 
-router.post('/shared', auth, (req, res) => {
+router.put('/', auth, (req, res) => {
     const result = Joi.validate(req.body, sharedSchema);
     if (result.error) {
         return res.status(200).json({
@@ -20,7 +20,7 @@ router.post('/shared', auth, (req, res) => {
             // doNothing flag is used to know whether the actual shared value of db and shared value from request conflicts. if so then only update the db.
             let doNothing = false;
             let finalBlogsArr = userResult.blogs.map(blog => {
-                if (blog.id === req.body.blogId) {
+                if (blog.blogId === req.body.blogId) {
                     if (blog.shared === req.body.values.shared) {
                         doNothing = true;
                     }
@@ -30,10 +30,9 @@ router.post('/shared', auth, (req, res) => {
             });
             let blog;
             if (req.body.values.shared && !doNothing) {
-                blog = userResult.blogs.find(blog => blog.id === req.body.blogId);
+                blog = userResult.blogs.find(blog => blog.blogId === req.body.blogId);
                 if (blog) {
-                    blog = {...blog, blogId: blog.id, position: {...userResult.position }, shared: req.body.values.shared }
-                    delete blog.id;
+                    blog = {...blog, position: {...userResult.position }, shared: req.body.values.shared }
                 }
                 if(!blog) {
                     doNothing = true;
@@ -72,7 +71,7 @@ router.post('/shared', auth, (req, res) => {
         } else {
             return res.status(200).json({
                 error: true,
-                errorType: 'id',
+                errorType: 'blogId',
                 errorMessage: 'Unable to find the user from database.'
             });
         }
@@ -85,19 +84,18 @@ router.post('/shared', auth, (req, res) => {
     });
 });
 
-router.get('/shared/blog', auth, (req, res) => {
-    if (req.query.id) {
-        Shared.findOne({ blogId: req.query.id }).then(result => {
+router.get('/blog', (req, res) => {
+    if (req.query.blogId) {
+        Shared.findOne({ blogId: req.query.blogId }).then(result => {
             if (result) {
                 return res.status(200).json({
                     error: false,
-                    message: 'successful',
                     blog: result
                 });
             } else {
                 return res.status(200).json({
                     error: true,
-                    errorType: 'blog',
+                    errorType: 'blogId',
                     errorMessage: 'Specified item does not exist.'
                 });
             }

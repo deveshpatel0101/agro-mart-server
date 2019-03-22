@@ -43,7 +43,8 @@ router.post('/', (req, res) => {
                 } else {
                     const jwtPayload = {
                         id: result.id,
-                        loggedIn: true
+                        loggedIn: true,
+                        userType: result.userType
                     }
                     const jwtToken = jwt.sign(jwtPayload, config.get('jwtKey'), { expiresIn: '1h' });
                     if (result.userType === 'farmer') {

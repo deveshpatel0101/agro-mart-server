@@ -118,7 +118,6 @@ router.post('/', auth, (req, res) => {
 
 // updates a blog specified by blog object. id is necessary.
 router.put('/', auth, (req, res) => {
-    // TODO: do not allow to update id of blog. change architecture if necessary.
     const obj = {
         ...req.body
     }
@@ -151,19 +150,29 @@ router.put('/', auth, (req, res) => {
                     return blog;
                 }
             });
-            User.findOneAndUpdate({
-                _id: req.user.id
-            }, {
-                $set: {
-                    blogs: blogsArr
-                }
-            }, {
-                new: true
-            }).then(values => {
+            Promise.all([
+                User.findOneAndUpdate({
+                    _id: req.user.id
+                }, {
+                    $set: {
+                        blogs: blogsArr
+                    }
+                }, {
+                    new: true
+                }),
+                updatedBlog ? Shared.findOneAndUpdate({
+                    blogId: req.body.blogId
+                }, {
+                    $set: {
+                        ...updatedBlog
+                    }
+                }) : null
+            ]).then(values => {
                 return res.status(200).json({
                     error: false,
                     updated: true,
-                    blogs: values.blogs,
+                    blogId: updatedBlog.blogId,
+                    blogs: values[0].blogs,
                     updatedBlog
                 });
             }).catch(err => {

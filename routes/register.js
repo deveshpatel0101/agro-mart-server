@@ -6,12 +6,7 @@ const User = require('../model/user');
 const { registerSchema } = require('../validators/register');
 router.post('/', (req, res) => {
     let userObj = {
-        email: req.body.email,
-        username: req.body.username,
-        password: req.body.password,
-        confirmPassword: req.body.confirmPassword,
-        userType: req.body.userType,
-        position: req.body.position,
+        ...req.body,
         accountType: 'local',
         blogs: []
     };
@@ -21,7 +16,7 @@ router.post('/', (req, res) => {
             return res.status(200).json({
                 error: true,
                 errorType: result.error.details[0].path[0],
-                errorMessage: 'Password should be at least 6 characters long and should include at least one uppercase letter or numeric character.'
+                errorMessage: 'Password is required and should be at least 6 characters long and should include at least one uppercase letter and a numeric character.'
             });
         } else if (result.error.details[0].path[0] === 'confirmPassword') {
             return res.status(200).json({

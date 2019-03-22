@@ -27,7 +27,7 @@ module.exports = (app) => {
     // REST API's
     app.use('/user/auth/google', google);
     app.use('/user/blogs', blog);
-    app.use('/public/', shared);
+    app.use('/public/shared', shared);
     app.use('/user/login', login);
     app.use('/user/register', register);
     app.use(error);

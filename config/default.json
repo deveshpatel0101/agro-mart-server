@@ -1,3 +1,4 @@
 {
-  "name": "My Blog - Default"
+  "name": "My Blog - Default",
+  "jwtKey": "1234"
 }

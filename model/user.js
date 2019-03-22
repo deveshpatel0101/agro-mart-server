@@ -55,6 +55,12 @@ let UserSchema = new Schema({
             return (this.accountType === 'local' && this.refreshToken === undefined) || this.accountType === 'google';
         }
     },
+    googleId: {
+        type: String,
+        required: function() {
+            this.accountType === 'google';
+        }
+    },
     blogs: {
         type: Object,
         required: true,
