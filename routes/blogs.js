@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const geolib = require('geolib');
 const Joi = require('joi');
+const uuid = require('uuid/v4');
 
 const User = require('../model/user');
 const Shared = require('../model/shared');
@@ -56,8 +57,12 @@ router.get('/', auth, (req, res) => {
 
 // add a new blog to the blogs array
 router.post('/', auth, (req, res) => {
-    // TODO: give blog id using uuid here and return the blog.
-    const obj = { ...req.body, shared: false };
+    const obj = {
+        ...req.body,
+        blogId: uuid(),
+        shared: false
+    };
+
     const result = Joi.validate(obj, createBlogSchema);
     if (result.error) {
         return res.status(200).json({
@@ -66,6 +71,10 @@ router.post('/', auth, (req, res) => {
             errorMessage: result.error.details[0].message
         });
     }
+
+    obj.createdAt = new Date(result.value.createdAt).getTime();
+    obj.lastModified = new Date(result.value.lastModified).getTime();
+
     User.findById(req.user.id).then(result => {
         if (result) {
             User.findOneAndUpdate({
@@ -80,6 +89,7 @@ router.post('/', auth, (req, res) => {
                 return res.status(200).json({
                     error: false,
                     updated: true,
+                    blogId: obj.blogId,
                     blogs: updatedResult.blogs,
                     addedBlog: obj
                 });
@@ -109,48 +119,51 @@ router.post('/', auth, (req, res) => {
 // updates a blog specified by blog object. id is necessary.
 router.put('/', auth, (req, res) => {
     // TODO: do not allow to update id of blog. change architecture if necessary.
-    const result = Joi.validate(req.body, updateBlogSchema);
-    if (result.error) {
+    const obj = {
+        ...req.body
+    }
+
+    const validate = Joi.validate(obj, updateBlogSchema);
+    if (validate.error) {
         return res.status(200).json({
             error: true,
-            errorType: result.error.details[0].path[0],
-            errorMessage: result.error.details[0].message
+            errorType: validate.error.details[0].path[0],
+            errorMessage: validate.error.details[0].message
         });
+    }
+    const { createdAt, lastModified } = validate.value.values;
+
+    if (createdAt) {
+        obj.values.createdAt = new Date(createdAt).getTime();
+    }
+    if (lastModified) {
+        obj.values.lastModified = new Date(lastModified).getTime();
     }
     User.findById(req.user.id).then(result => {
         let blogsArr = result.blogs;
-        let actualBlog = undefined,
-            updatedBlog = undefined;
+        let updatedBlog = undefined;
         if (result) {
             blogsArr = blogsArr.map(blog => {
-                if (blog.id === req.body.blogId) {
-                    actualBlog = blog;
-                    updatedBlog = {...blog, ...req.body.values };
-                    return {...blog, ...req.body.values }
+                if (blog.blogId === obj.blogId) {
+                    updatedBlog = {...blog, ...obj.values };
+                    return {...blog, ...obj.values }
                 } else {
                     return blog;
                 }
             });
-            Promise.all([
-                User.findOneAndUpdate({
-                    _id: req.user.id
-                }, {
-                    $set: {
-                        blogs: blogsArr
-                    }
-                }, {
-                    new: true
-                }),
-                actualBlog && actualBlog.shared ? Shared.findOneAndUpdate({
-                    blogId: req.body.blogs.id
-                }, {
-                    $set: {...req.body.blogs }
-                }) : null
-            ]).then(values => {
+            User.findOneAndUpdate({
+                _id: req.user.id
+            }, {
+                $set: {
+                    blogs: blogsArr
+                }
+            }, {
+                new: true
+            }).then(values => {
                 return res.status(200).json({
                     error: false,
                     updated: true,
-                    blogs: values[0].blogs,
+                    blogs: values.blogs,
                     updatedBlog
                 });
             }).catch(err => {
@@ -159,7 +172,7 @@ router.put('/', auth, (req, res) => {
                     errorType: 'unexpected',
                     errorMessage: err
                 });
-            })
+            });
         } else {
             return res.status(200).json({
                 error: true,
@@ -197,7 +210,7 @@ router.delete('/', auth, (req, res) => {
             let blogsArr = userResult.blogs;
             let deletedBlog = undefined;
             blogsArr = blogsArr.filter(blog => {
-                if (blog.id === req.body.blogId) {
+                if (blog.blogId === req.body.blogId) {
                     deletedBlog = blog;
                     return false;
                 } else {
