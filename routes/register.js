@@ -12,7 +12,8 @@ router.post('/', (req, res) => {
         confirmPassword: req.body.confirmPassword,
         userType: req.body.userType,
         position: req.body.position,
-        accountType: 'local'
+        accountType: 'local',
+        blogs: []
     };
     const result = Joi.validate(userObj, registerSchema);
     if (result.error) {

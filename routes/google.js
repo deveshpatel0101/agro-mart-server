@@ -2,6 +2,7 @@ const router = require("express").Router();
 const jwt = require('jsonwebtoken');
 const geolib = require('geolib');
 const Joi = require('joi');
+const config = require('config');
 
 const User = require('../model/user');
 const Shared = require('../model/shared');
@@ -135,7 +136,7 @@ function generateJwt(id) {
         id: id,
         loggedIn: true
     }
-    let jwtToken = jwt.sign(newUser, process.env.JWT_KEY, { expiresIn: '1h' })
+    let jwtToken = jwt.sign(newUser, config.get('jwtKey'), { expiresIn: '1h' })
     return jwtToken;
 }
 

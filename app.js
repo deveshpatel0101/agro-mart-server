@@ -7,6 +7,8 @@ require('./startup/routes')(app);
 
 const port = process.env.PORT || 5000;
 // Server
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });
+
+module.exports = server;

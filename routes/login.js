@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const geolib = require('geolib');
 const Joi = require('joi');
+const config = require('config');
 
 const User = require('../model/user');
 const Shared = require('../model/shared');
@@ -44,7 +45,7 @@ router.post('/', (req, res) => {
                         id: result.id,
                         loggedIn: true
                     }
-                    const jwtToken = jwt.sign(jwtPayload, process.env.JWT_KEY, { expiresIn: '1h' });
+                    const jwtToken = jwt.sign(jwtPayload, config.get('jwtKey'), { expiresIn: '1h' });
                     if (result.userType === 'farmer') {
                         return res.status(200).json({
                             error: false,

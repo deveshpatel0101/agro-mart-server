@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const config = require('config');
 
 module.exports = function(req, res, next) {
     if (!req.query.token) {
@@ -8,7 +9,7 @@ module.exports = function(req, res, next) {
             errorMessage: 'Access Denied. No token provided.'
         });
     }
-    jwt.verify(req.query.token, process.env.JWT_KEY, (err, decoded) => {
+    jwt.verify(req.query.token, config.get('jwtKey'), (err, decoded) => {
         if (err) {
             return res.status(200).json({
                 error: true,
