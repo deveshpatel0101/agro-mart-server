@@ -99,6 +99,12 @@ describe('joi register validator', () => {
         expect(result.error.details[0].path).toEqual(expect.arrayContaining(['position']));
         obj.position.longitude = 180;
 
+        // invalid keys in position: invalid field
+        obj.position.unknownField = 'invalid field';
+        result = Joi.validate(obj, registerSchema);
+        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
+        delete obj.position.unknownField;
+
         // invalid accountType: not present
         obj = {...registerObj };
         delete obj.accountType;
@@ -125,6 +131,13 @@ describe('joi register validator', () => {
         obj.blogs = ['invalid length'];
         result = Joi.validate(obj, registerSchema);
         expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogs']));
+
+        // invalid keys: invalid field 
+        obj = {...registerObj };
+        obj.unknownField = 'invalid field';
+        result = Joi.validate(obj, registerSchema);
+        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
+        delete obj.unknownField;
 
         // valid register user object
         obj = {...registerObj };

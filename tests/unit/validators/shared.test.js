@@ -38,6 +38,20 @@ describe('joi shared schema', () => {
         result = Joi.validate(obj, sharedSchema);
         expect(result.error.details[0].path).toEqual(expect.arrayContaining(['values']));
 
+        // invalid keys values-unknownField: invalid field
+        obj = {...sharedObj };
+        obj.values.unknownField = 'invalid field';
+        result = Joi.validate(obj, sharedSchema);
+        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
+        delete obj.values.unknownField;
+
+        // invalid key: invalid field
+        obj = {...sharedObj };
+        obj.unknownField = 'invalid field';
+        result = Joi.validate(obj, sharedSchema);
+        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
+        delete obj.unknownField;
+
         // valid shared object
         obj = {...sharedObj };
         result = Joi.validate(obj, sharedSchema);

@@ -95,6 +95,12 @@ describe('joi google validator', () => {
         expect(result.error.details[0].path).toEqual(expect.arrayContaining(['position']));
         obj.position.longitude = 180;
 
+        // invalid keys in position: invalid field
+        obj.position.unknownField = 'invalid field';
+        result = Joi.validate(obj, googleSchema);
+        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
+        delete obj.position.unknownField;
+
         // invalid userType: not present
         obj = {...googleObj };
         delete obj.userType;
@@ -119,8 +125,15 @@ describe('joi google validator', () => {
 
         // invalid blogs: invalid length
         obj.blogs = ['something'];
-        error = Joi.validate(obj, googleSchema);
+        result = Joi.validate(obj, googleSchema);
         expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogs']));
+        delete obj.blogs;
+
+        // invalid keys: invalid field
+        obj = {...googleObj };
+        obj.unknownField = 'invalid field';
+        result = Joi.validate(obj, googleSchema);
+        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
 
         // valid object
         obj = {...googleObj };

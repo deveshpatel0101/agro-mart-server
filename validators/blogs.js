@@ -16,7 +16,7 @@ module.exports.updateBlogSchema = {
         description: Joi.string().min(1),
         createdAt: Joi.date(),
         lastModified: Joi.date()
-    }).required().allow(["title", "description", "createdAt", "lastModified"])
+    }).required()
 }
 
 module.exports.deleteBlogSchema = {

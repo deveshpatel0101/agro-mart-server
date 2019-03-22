@@ -31,6 +31,13 @@ describe('joi login validator', () => {
         result = Joi.validate(obj, loginSchema);
         expect(result.error.details[0].path).toEqual(expect.arrayContaining(['password']));
 
+        // invalid keys: invalid field
+        obj = {...loginObj};
+        obj.unknownField = 'invalid field';
+        result = Joi.validate(obj, loginSchema);
+        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
+        delete obj.unknownField;
+
         // valid login object
         obj = {...loginObj };
         result = Joi.validate(obj, loginSchema);

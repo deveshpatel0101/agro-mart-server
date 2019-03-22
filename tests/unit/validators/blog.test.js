@@ -70,6 +70,13 @@ describe('joi create blog validator', () => {
         result = Joi.validate(obj, createBlogSchema);
         expect(result.error.details[0].path).toEqual(expect.arrayContaining(['shared']));
 
+        // invalid keys: unknown fields not allowed
+        obj = {...createBlogObj };
+        obj.unknownField = 'something unknown';
+        result = Joi.validate(obj, createBlogSchema);
+        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
+        delete obj.unknownField;
+
         // valid object
         obj = {...createBlogObj };
         result = Joi.validate(obj, createBlogSchema);
@@ -129,6 +136,13 @@ describe('joi update blog validator', () => {
         expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
         delete obj.values.unknownField;
 
+        // invalid keys: unknown fields not allowed
+        obj = {...updateBlogObj };
+        obj.unknownField = 'something unknown';
+        result = Joi.validate(obj, updateBlogSchema);
+        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
+        delete obj.unknownField;
+
         // valid object
         obj = {...updateBlogObj };
         result = Joi.validate(obj, updateBlogSchema);
@@ -153,6 +167,13 @@ describe('joi delete blog validator', () => {
         obj.blogId = '1234';
         result = Joi.validate(obj, deleteBlogSchema);
         expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogId']));
+
+        // invalid keys: unknown fields not allowed
+        obj = {...deleteBlogObj };
+        obj.unknownField = 'something unknown';
+        result = Joi.validate(obj, deleteBlogSchema);
+        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
+        delete obj.unknownField;
 
         // valid object
         obj = {...deleteBlogObj };
