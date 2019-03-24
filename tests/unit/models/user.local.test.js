@@ -7,7 +7,6 @@ describe('mongoose.user schema', () => {
             email: 'something@gmail.com',
             password: 'Something12@',
             accountType: 'local',
-            userType: 'customer',
             position: {
                 latitude: 90,
                 longitude: 180
@@ -70,17 +69,6 @@ describe('mongoose.user schema', () => {
         obj.refreshToken = 'w98798iuhfkjshf';
         error = new User(obj).validateSync();
         expect(error.errors.refreshToken.properties.path).toBe('refreshToken');
-
-        // invalid userType: not present
-        obj = {...localUserObj }
-        delete obj.userType
-        error = new User(obj).validateSync();
-        expect(error.errors.userType.properties.path).toBe('userType');
-
-        // invalid userType: invalid value
-        obj.userType = 'invalid value';
-        error = new User(obj).validateSync();
-        expect(error.errors.userType.properties.path).toBe('userType');
 
         // invalid position: not present
         obj = {...localUserObj }

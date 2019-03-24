@@ -67,12 +67,7 @@ let UserSchema = new Schema({
         validate: function() {
             return this.blogs && Array.isArray(this.blogs) && this.blogs.length === 0;
         }
-    },
-    userType: {
-        type: String,
-        required: true,
-        enum: ['farmer', 'customer']
-    },
+    },    
     position: {
         type: Object,
         required: true,

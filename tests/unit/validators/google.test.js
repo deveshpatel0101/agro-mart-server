@@ -15,7 +15,6 @@ describe('joi google validator', () => {
                 latitude: 90,
                 longitude: 180
             },
-            userType: 'farmer',
             blogs: []
         }
 
@@ -100,17 +99,6 @@ describe('joi google validator', () => {
         result = Joi.validate(obj, googleSchema);
         expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
         delete obj.position.unknownField;
-
-        // invalid userType: not present
-        obj = {...googleObj };
-        delete obj.userType;
-        result = Joi.validate(obj, googleSchema);
-        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['userType']));
-
-        // invalid userType: invalid value
-        obj.userType = 'invalid user type';
-        result = Joi.validate(obj, googleSchema);
-        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['userType']));
 
         // invalid blogs: not present
         obj = {...googleObj };

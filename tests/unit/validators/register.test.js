@@ -8,7 +8,6 @@ describe('joi register validator', () => {
             email: 'something@gmail.com',
             password: 'Something12',
             confirmPassword: 'Something12',
-            userType: 'customer',
             position: {
                 latitude: 90,
                 longitude: 180
@@ -60,17 +59,6 @@ describe('joi register validator', () => {
         obj.confirmPassword = 'Something1';
         result = Joi.validate(obj, registerSchema);
         expect(result.error.details[0].path).toEqual(expect.arrayContaining(['confirmPassword']));
-
-        // invalid userType: not present
-        obj = {...registerObj };
-        delete obj.userType;
-        result = Joi.validate(obj, registerSchema);
-        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['userType']));
-
-        // invalid userType: invalid value
-        obj.userType = 'invalid value';
-        result = Joi.validate(obj, registerSchema);
-        expect(result.error.details[0].path).toEqual(expect.arrayContaining(['userType']));
 
         // invalid position: not present
         obj = {...registerObj };

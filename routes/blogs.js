@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const geolib = require('geolib');
 const Joi = require('joi');
 const uuid = require('uuid/v4');
 
@@ -12,33 +11,10 @@ const { createBlogSchema, deleteBlogSchema, updateBlogSchema } = require('../val
 router.get('/', auth, (req, res) => {
     User.findById(req.user.id).then(result => {
         if (result) {
-            if (result.userType === 'farmer') {
-                return res.status(200).json({
-                    error: false,
-                    blogs: result.blogs
-                });
-            } else if (result.userType === 'customer') {
-                const currPosition = result.position;
-                let blogs = [];
-                Shared.find().limit(20).then(resultShared => {
-                    for (let i = 0; i < resultShared.length; i++) {
-                        const distance = geolib.getDistance(currPosition, resultShared[i].position);
-                        if (distance < 6000) {
-                            blogs.push(resultShared[i]);
-                        }
-                    }
-                    return res.status(200).json({
-                        error: false,
-                        blogs
-                    });
-                }).catch(err => {
-                    return res.status(200).json({
-                        error: true,
-                        errorType: 'unexpected',
-                        errorMessage: err
-                    });
-                });
-            }
+            return res.status(200).json({
+                error: false,
+                blogs: result.blogs
+            });
         } else {
             return res.status(200).json({
                 error: true,

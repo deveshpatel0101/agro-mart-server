@@ -24,12 +24,6 @@ router.post('/', (req, res) => {
                 errorType: result.error.details[0].path[0],
                 errorMessage: 'Both passwords should match.'
             });
-        } else if (result.error.details[0].path[0] === 'userType') {
-            return res.status(200).json({
-                error: true,
-                errorType: result.error.details[0].path[0],
-                errorMessage: 'Not a valid user type. It must either a farmer or customer.'
-            });
         }
         return res.status(200).json({
             error: true,

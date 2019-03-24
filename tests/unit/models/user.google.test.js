@@ -8,7 +8,6 @@ describe('mongoose.user schema', () => {
             accountType: 'google',
             accessToken: '294783sjdfhkjh093842384jefsdh',
             refreshToken: 'w98798iuhfkjshf',
-            userType: 'customer',
             position: {
                 latitude: 90,
                 longitude: 180
@@ -65,17 +64,6 @@ describe('mongoose.user schema', () => {
         obj = {...googleUserObj }
         error = new User(obj).validateSync();
         expect(error).toBe(undefined);
-
-        // invalid userType: not present
-        obj = {...googleUserObj }
-        delete obj.userType
-        error = new User(obj).validateSync();
-        expect(error.errors.userType.properties.path).toBe('userType');
-
-        // invalid userType: invalid value
-        obj.userType = 'invalid value';
-        error = new User(obj).validateSync();
-        expect(error.errors.userType.properties.path).toBe('userType');
 
         // invalid position: not present
         obj = {...googleUserObj }

@@ -31,14 +31,6 @@ router.post('/', (req, res) => {
         if (!result) {
             const result = Joi.validate(googleUser, googleSchema);
             if (result.error) {
-                if (result.error.details[0].path[0] === 'userType') {
-                    return res.status(200).json({
-                        error: true,
-                        errorType: result.error.details[0].path[0],
-                        problem: 'user does not exist',
-                        errorMessage: 'Not a valid user type. It must either a farmer or customer.'
-                    });
-                }
                 return res.status(200).json({
                     error: true,
                     errorType: result.error.details[0].path[0],
@@ -48,28 +40,12 @@ router.post('/', (req, res) => {
             }
 
             new User(googleUser).save().then(savedResult => {
-                const jwtToken = generateJwt(savedResult.id, savedResult.userType);
-                if (savedResult.userType === 'farmer') {
-                    return res.status(200).json({
-                        error: false,
-                        jwtToken,
-                        blogs: []
-                    });
-                } else if (savedResult.userType === 'customer') {
-                    Shared.find().limit(20).then(sharedResults => {
-                        return res.status(200).json({
-                            error: false,
-                            jwtToken,
-                            blogs: sharedResults
-                        });
-                    }).catch(err => {
-                        return res.status(200).json({
-                            error: true,
-                            errorType: 'unexpected',
-                            errorMessage: err
-                        });
-                    });
-                }
+                const jwtToken = generateJwt(savedResult.id);
+                return res.status(200).json({
+                    error: false,
+                    jwtToken,
+                    blogs: []
+                });
             }).catch(err => {
                 return res.status(200).json({
                     error: true,
@@ -78,28 +54,12 @@ router.post('/', (req, res) => {
                 });
             });
         } else {
-            const jwtToken = generateJwt(result.id, result.userType);
-            if (result.userType === 'farmer') {
-                return res.status(200).json({
-                    error: false,
-                    jwtToken,
-                    blogs: result.blogs
-                });
-            } else if (result.userType === 'customer') {
-                Shared.find().limit(20).then(sharedResults => {
-                    return res.status(200).json({
-                        error: false,
-                        jwtToken,
-                        blogs: sharedResults
-                    });
-                }).catch(err => {
-                    return res.status(200).json({
-                        error: true,
-                        errorType: 'unexpected',
-                        errorMessage: err
-                    });
-                });
-            }
+            const jwtToken = generateJwt(result.id);
+            return res.status(200).json({
+                error: false,
+                jwtToken,
+                blogs: result.blogs
+            });
         }
     }).catch(err => {
         return res.status(200).json({
@@ -110,11 +70,10 @@ router.post('/', (req, res) => {
     });
 });
 
-function generateJwt(id, userType) {
+function generateJwt(id) {
     let newUser = {
         id: id,
         loggedIn: true,
-        userType
     }
     let jwtToken = jwt.sign(newUser, config.get('jwtKey'), { expiresIn: '1h' })
     return jwtToken;

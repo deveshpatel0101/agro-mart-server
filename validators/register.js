@@ -7,7 +7,6 @@ module.exports.registerSchema = {
     email: Joi.string().email().required(),
     password: Joi.string().regex(passwordRegex).required(),
     confirmPassword: Joi.equal(Joi.ref('password')).required(),
-    userType: Joi.string().regex(/^farmer$|^customer$/).required(),
     position: Joi.object({
         latitude: Joi.number().min(-90).max(90).required(),
         longitude: Joi.number().min(-180).max(180).required()

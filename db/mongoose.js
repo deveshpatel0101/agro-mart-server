@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const winston = require('winston');
 
 module.exports = () => {
     let db = '';
@@ -7,9 +8,8 @@ module.exports = () => {
     } else {
         db = 'mongodb://localhost:27017/my_blog';
     }
-    mongoose.connect(process.env.MONGODB || db, { useNewUrlParser: true, useCreateIndex: true }).then(() => {
-        console.log(`Connected to Database ${db}...`);
+    mongoose.connect(process.env.MONGODB || db, { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false }).then(() => {
+        process.env.NODE_ENV === 'test' || console.log(`Connected to Database ${db}...`);
+        winston.info(`Connected to Database ${db}...`);
     });
-
-    mongoose.Promise = global.Promise;
 }

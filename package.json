@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll --verbose",
-    "tests-unit": "jest --watchAll --verbose tests/unit/",
-    "tests-integration": "jest --watchAll --verbose tests/integration/",
+    "test-unit": "jest --watchAll --verbose tests/unit/",
+    "test-integration": "jest --watchAll --verbose tests/integration/ --runInBand",
     "start": "node app.js"
   },
   "author": "",
