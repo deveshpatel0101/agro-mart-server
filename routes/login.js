@@ -1,12 +1,10 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const geolib = require('geolib');
 const Joi = require('joi');
 const config = require('config');
 
 const User = require('../model/user');
-const Shared = require('../model/shared');
 const { loginSchema } = require('../validators/login');
 
 router.post('/', (req, res) => {

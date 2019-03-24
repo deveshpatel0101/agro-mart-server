@@ -18,7 +18,7 @@ router.get('/', auth, (req, res) => {
         } else {
             return res.status(200).json({
                 error: true,
-                errorType: 'id',
+                errorType: 'user',
                 errorMessage: 'Unable to find the user from database.'
             });
         }
@@ -79,7 +79,7 @@ router.post('/', auth, (req, res) => {
         } else {
             return res.status(200).json({
                 error: true,
-                errorType: 'id',
+                errorType: 'user',
                 errorMessage: 'Unable to find the user in database.'
             });
         }
@@ -161,7 +161,7 @@ router.put('/', auth, (req, res) => {
         } else {
             return res.status(200).json({
                 error: true,
-                errorType: 'id',
+                errorType: 'user',
                 errorMessage: 'Unable to find the user in database.'
             });
         }
@@ -188,7 +188,7 @@ router.delete('/', auth, (req, res) => {
         if (!userResult) {
             return res.status(200).json({
                 error: true,
-                errorType: 'id',
+                errorType: 'user',
                 errorMessage: 'Unable to find the user in database.'
             });
         } else {
@@ -230,7 +230,7 @@ router.delete('/', auth, (req, res) => {
             } else {
                 return res.status(200).json({
                     error: true,
-                    errorType: 'blog',
+                    errorType: 'blogId',
                     errorMessage: 'Specified item not found.'
                 });
             }

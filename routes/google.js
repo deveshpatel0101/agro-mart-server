@@ -5,7 +5,6 @@ const Joi = require('joi');
 const config = require('config');
 
 const User = require('../model/user');
-const Shared = require('../model/shared');
 const { googleSchema } = require('../validators/google');
 
 router.post('/', (req, res) => {

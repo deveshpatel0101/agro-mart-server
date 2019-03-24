@@ -18,26 +18,20 @@ router.put('/', auth, (req, res) => {
     User.findById(req.user.id).then(userResult => {
         if (userResult) {
             // doNothing flag is used to know whether the actual shared value of db and shared value from request conflicts. if so then only update the db.
-            let doNothing = false;
+            let doNothing = false,
+                sharedBlog;
             let finalBlogsArr = userResult.blogs.map(blog => {
                 if (blog.blogId === req.body.blogId) {
                     if (blog.shared === req.body.values.shared) {
                         doNothing = true;
                     }
-                    return {...blog, shared: req.body.values.shared }
+                    if (req.body.values.shared) {
+                        sharedBlog = {...blog, position: {...userResult.position }, shared: req.body.values.shared };
+                    }
+                    return {...blog, shared: req.body.values.shared };
                 }
-                return blog
+                return blog;
             });
-            let blog;
-            if (req.body.values.shared && !doNothing) {
-                blog = userResult.blogs.find(blog => blog.blogId === req.body.blogId);
-                if (blog) {
-                    blog = {...blog, position: {...userResult.position }, shared: req.body.values.shared }
-                }
-                if(!blog) {
-                    doNothing = true;
-                }
-            }
             if (!doNothing) {
                 Promise.all([
                     User.findOneAndUpdate({ _id: req.user.id }, {
@@ -47,12 +41,14 @@ router.put('/', auth, (req, res) => {
                     }, {
                         new: true
                     }),
-                    req.body.values.shared ? new Shared({...blog }).save() : Shared.findOneAndDelete({ blogId: req.body.blogId })
+                    req.body.values.shared ? new Shared({...sharedBlog }).save() : Shared.findOneAndDelete({ blogId: req.body.blogId })
                 ]).then(values => {
                     return res.status(200).json({
                         error: false,
                         message: 'Updated successfully.',
-                        result: values[0].blogs
+                        blogId: req.body.blogId,
+                        blogs: values[0].blogs,
+                        sharedBlog
                     });
                 }).catch(err => {
                     return res.status(200).json({
@@ -64,14 +60,16 @@ router.put('/', auth, (req, res) => {
             } else {
                 return res.status(200).json({
                     error: false,
-                    message: 'Updated successfully.',
-                    result: userResult.blogs
+                    message: 'No updates required',
+                    blogId: req.body.blogId,
+                    blogs: userResult.blogs,
+                    sharedBlog
                 });
             }
         } else {
             return res.status(200).json({
                 error: true,
-                errorType: 'blogId',
+                errorType: 'user',
                 errorMessage: 'Unable to find the user from database.'
             });
         }
@@ -102,7 +100,7 @@ router.get('/blog', (req, res) => {
         });
     } else {
         return res.status(200).json({
-            error: false,
+            error: true,
             errorType: 'blogId',
             errorMessage: 'Id is required in query parameter.'
         });
