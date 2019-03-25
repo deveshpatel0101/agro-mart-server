@@ -6,6 +6,42 @@ const User = require('../model/user');
 const auth = require('../middleware/auth');
 const { sharedSchema } = require('../validators/shared');
 
+router.get('/', (req, res) => {
+  const q = req.query.q;
+  const page = req.query.page ? parseInt(req.query.page) - 1: 0;
+  const per_page = req.query.per_page ? parseInt(req.query.per_page) : 50;
+  console.log(q, page, per_page);
+  if (per_page && per_page > 100) {
+    return res.status(200).json({
+      error: true,
+      errorType: 'per_page',
+      errorMessage: 'Per page of maximum 100 is allowed',
+    });
+  }
+  const query = {
+    $or: [
+      { title: new RegExp(q, "gi") },
+      { description: new RegExp(q, "gi") },
+    ],
+  };
+  Shared.find(q ? query : null)
+    .skip(q ? 0 : page * per_page)
+    .limit(per_page)
+    .then((result) => {
+      return res.status(200).json({
+        error: false,
+        blogs: result,
+      });
+    })
+    .catch((err) => {
+      return res.status(200).json({
+        error: true,
+        errorType: 'unexpected',
+        errorMessage: err,
+      });
+    });
+});
+
 router.put('/', auth, (req, res) => {
   const result = Joi.validate(req.body, sharedSchema);
   if (result.error) {
@@ -16,12 +52,12 @@ router.put('/', auth, (req, res) => {
     });
   }
   User.findById(req.user.id)
-    .then(userResult => {
+    .then((userResult) => {
       if (userResult) {
         // doNothing flag is used to know whether the actual shared value of db and shared value from request conflicts. if so then only update the db.
         let doNothing = false,
           sharedBlog;
-        let finalBlogsArr = userResult.blogs.map(blog => {
+        let finalBlogsArr = userResult.blogs.map((blog) => {
           if (blog.blogId === req.body.blogId) {
             if (blog.shared === req.body.values.shared) {
               doNothing = true;
@@ -54,7 +90,7 @@ router.put('/', auth, (req, res) => {
               ? new Shared({ ...sharedBlog }).save()
               : Shared.findOneAndDelete({ blogId: req.body.blogId }),
           ])
-            .then(values => {
+            .then((values) => {
               return res.status(200).json({
                 error: false,
                 message: 'Updated successfully.',
@@ -63,7 +99,7 @@ router.put('/', auth, (req, res) => {
                 sharedBlog,
               });
             })
-            .catch(err => {
+            .catch((err) => {
               return res.status(200).json({
                 error: true,
                 errorType: 'unexpected',
@@ -87,7 +123,7 @@ router.put('/', auth, (req, res) => {
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       return res.status(200).json({
         error: true,
         errorType: 'unexpected',
@@ -98,7 +134,7 @@ router.put('/', auth, (req, res) => {
 
 router.get('/blog', (req, res) => {
   if (req.query.blogId) {
-    Shared.findOne({ blogId: req.query.blogId }).then(result => {
+    Shared.findOne({ blogId: req.query.blogId }).then((result) => {
       if (result) {
         return res.status(200).json({
           error: false,
