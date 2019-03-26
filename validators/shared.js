@@ -8,3 +8,9 @@ module.exports.sharedSchema = {
     shared: Joi.boolean().required(),
   }).required(),
 };
+
+module.exports.getSharedBlogsSchema = {
+  q: Joi.string(),
+  page: Joi.number().min(1),
+  per_page: Joi.number().min(0).max(100)
+}

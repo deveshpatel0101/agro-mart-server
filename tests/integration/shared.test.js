@@ -30,6 +30,49 @@ describe('/public/shared', () => {
     await User.collection.deleteMany({});
   });
 
+  describe('GET /', () => {
+    let errorType, q, per_page, page;
+
+    const exec = async () => {
+      let result = await request(server)
+        .get(`/public/shared?page=${page}&per_page=${per_page}}`)
+        .send();
+      expect(result.body.error).toBeTruthy();
+      expect(result.body.errorType).toBe(errorType);
+    };
+
+    it('should return error if invalid per page is passed', async () => {
+      errorType = 'per_page';
+      page = 1;
+      per_page = -1;
+      await exec();
+      per_page = 101;
+      await exec();
+      per_page = 'something';
+      await exec();
+    });
+
+    it('should return error if invalid page value is passed', async () => {
+      errorType = 'page';
+      per_page = 10;
+      page = -1;
+      await exec();
+      page = 0;
+      await exec();
+      page = 'something';
+      await exec();
+    });
+
+    it('should return blogs if valid page or per page value is passed', async () => {
+      page = 1;
+      per_page = 10;
+      let result = await request(server)
+        .get('/public/shared?page=1&per_page=10')
+        .send();
+      expect(result.body.error).toBeFalsy();
+    });
+  });
+
   describe('PUT /', () => {
     let blog, errorType, token;
 
@@ -57,7 +100,7 @@ describe('/public/shared', () => {
 
     const checkInUsers = async () => {
       let result = await User.findOne({ email: originalUser.email });
-      let b = result.blogs.find(b => b.blogId === blog.blogId);
+      let b = result.blogs.find((b) => b.blogId === blog.blogId);
       expect(b).toBeDefined();
       expect(b).toHaveProperty('shared', blog.values.shared);
     };
@@ -99,7 +142,7 @@ describe('/public/shared', () => {
         .put('/public/shared?token=' + token)
         .send(blog);
       expect(result.body.error).toBeFalsy();
-      let b = result.body.blogs.find(b => b.blogId === blog.blogId);
+      let b = result.body.blogs.find((b) => b.blogId === blog.blogId);
       expect(b).toBeDefined();
       expect(b).toHaveProperty('shared', true);
     });

@@ -4,26 +4,30 @@ const Joi = require('joi');
 const Shared = require('../model/shared');
 const User = require('../model/user');
 const auth = require('../middleware/auth');
-const { sharedSchema } = require('../validators/shared');
+const { sharedSchema, getSharedBlogsSchema } = require('../validators/shared');
 
 router.get('/', (req, res) => {
-  const q = req.query.q;
-  const page = req.query.page ? parseInt(req.query.page) - 1: 0;
-  const per_page = req.query.per_page ? parseInt(req.query.per_page) : 50;
-  console.log(q, page, per_page);
-  if (per_page && per_page > 100) {
+  const result = Joi.validate(
+    { q: req.query.q, page: req.query.page, per_page: req.query.per_page },
+    getSharedBlogsSchema,
+  );
+
+  if (result.error) {
     return res.status(200).json({
       error: true,
-      errorType: 'per_page',
-      errorMessage: 'Per page of maximum 100 is allowed',
+      errorType: result.error.details[0].path[0],
+      errorMessage: result.error.details[0].message,
     });
   }
+
+  const q = req.query.q;
+  const page = req.query.page ? parseInt(req.query.page) - 1 : 0;
+  const per_page = req.query.per_page ? parseInt(req.query.per_page) : 50;
+
   const query = {
-    $or: [
-      { title: new RegExp(q, "gi") },
-      { description: new RegExp(q, "gi") },
-    ],
+    $or: [{ title: new RegExp(q, 'gi') }, { description: new RegExp(q, 'gi') }],
   };
+
   Shared.find(q ? query : null)
     .skip(q ? 0 : page * per_page)
     .limit(per_page)
