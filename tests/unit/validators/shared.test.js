@@ -1,6 +1,9 @@
 const Joi = require('joi');
 const uuid = require('uuid/v4');
-const { sharedSchema } = require('../../../validators/shared');
+const {
+  sharedSchema,
+  getSharedBlogsSchema,
+} = require('../../../validators/shared');
 
 describe('joi shared schema', () => {
   it('should properly validate all types of request body for sharing a blog', () => {
@@ -70,5 +73,44 @@ describe('joi shared schema', () => {
     obj = { ...sharedObj };
     result = Joi.validate(obj, sharedSchema);
     expect(result.error).toBe(null);
+  });
+});
+
+describe('joi get shared blogs', () => {
+  it('should properly validate all types of request parameters', () => {
+    let obj = {
+      page: 1,
+      per_page: 10,
+    };
+
+    // invalid per_page: negative value
+    obj.per_page = -1;
+    result = Joi.validate(obj, getSharedBlogsSchema);
+    expect(result.error.details[0].path).toEqual(
+      expect.arrayContaining(['per_page']),
+    );
+    obj.per_page = 10;
+
+    // invalid per_page: more than 100
+    obj.per_page = 101;
+    result = Joi.validate(obj, getSharedBlogsSchema);
+    expect(result.error.details[0].path).toEqual(
+      expect.arrayContaining(['per_page']),
+    );
+    obj.per_page = 10;
+
+    // invalid page: equal to zero value
+    obj.page = 0;
+    result = Joi.validate(obj, getSharedBlogsSchema);
+    expect(result.error.details[0].path).toEqual(
+      expect.arrayContaining(['page']),
+    );
+
+    // invalid page: negative value
+    obj.page = -1;
+    result = Joi.validate(obj, getSharedBlogsSchema);
+    expect(result.error.details[0].path).toEqual(
+      expect.arrayContaining(['page']),
+    );
   });
 });
