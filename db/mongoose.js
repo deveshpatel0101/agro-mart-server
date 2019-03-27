@@ -6,10 +6,10 @@ module.exports = () => {
   if (process.env.NODE_ENV === 'test') {
     db = 'mongodb://localhost:27017/my_blog_test';
   } else {
-    db = 'mongodb://localhost:27017/my_blog';
+    db = process.env.MONGODB || 'mongodb://localhost:27017/my_blog';
   }
   mongoose
-    .connect(process.env.MONGODB || db, {
+    .connect(db, {
       useNewUrlParser: true,
       useCreateIndex: true,
       useFindAndModify: false,
