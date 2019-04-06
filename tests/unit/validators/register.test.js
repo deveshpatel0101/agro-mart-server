@@ -2,171 +2,150 @@ const Joi = require('joi');
 const { registerSchema } = require('../../../validators/register');
 
 describe('joi register validator', () => {
-  it('should properly validate all types of request body for registering a local user', () => {
-    const registerObj = {
-      username: 'something',
-      email: 'something@gmail.com',
-      password: 'Something12',
-      confirmPassword: 'Something12',
-      position: {
-        latitude: 90,
-        longitude: 180,
-      },
-      accountType: 'local',
-      blogs: [],
-    };
+  const registerObj = {
+    username: 'something',
+    email: 'something@gmail.com',
+    password: 'Something12',
+    confirmPassword: 'Something12',
+    position: {
+      latitude: 90,
+      longitude: 180,
+    },
+    accountType: 'local',
+    blogs: [],
+  };
 
+  let obj = undefined;
+  let result = undefined;
+
+  it('should properly validate invalid username', () => {
     // invalid username: not present
-    let obj = { ...registerObj };
+    obj = { ...registerObj };
     delete obj.username;
-    let result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['username']),
-    );
+    result = Joi.validate(obj, registerSchema);
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['username']));
 
     // invalid username: invalid length
     obj.username = 'so';
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['username']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['username']));
+  });
 
+  it('should properly validate invalid email', () => {
     // invalid email: not present
     obj = { ...registerObj };
     delete obj.email;
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['email']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['email']));
 
     // invalid email: invalid pattern
     obj.email = 'something';
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['email']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['email']));
+  });
 
+  it('should properly validate invalid password', () => {
     // invalid password: not present
     obj = { ...registerObj };
     delete obj.password;
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['password']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['password']));
 
     // invalid password: invalid pattern
     obj.password = 'Something';
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['password']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['password']));
+  });
 
+  it('should properly validate invalid confirm password', () => {
     // invalid confirmPassword: not present
     obj = { ...registerObj };
     delete obj.confirmPassword;
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['confirmPassword']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['confirmPassword']));
 
     // invalid confirmPassword: not match with password
     obj.confirmPassword = 'Something1';
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['confirmPassword']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['confirmPassword']));
+  });
 
+  it('should properly validate invalid position object', () => {
     // invalid position: not present
     obj = { ...registerObj };
     delete obj.position;
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['position']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['position']));
     obj.position = {};
 
     // invalid position-latitude: not present
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['position']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['position']));
 
     // invalid position-latitude: invalid value
     obj.position.latitude = 91;
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['position']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['position']));
     obj.position.latitude = 90;
 
     // invalid position-longitude: not present
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['position']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['position']));
 
     // invalid position-longitude: invalid value
     obj.position.longitude = 181;
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['position']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['position']));
     obj.position.longitude = 180;
 
     // invalid keys in position: invalid field
     obj.position.unknownField = 'invalid field';
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['unknownField']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
     delete obj.position.unknownField;
+  });
 
+  it('should properly validate invalid account type', () => {
     // invalid accountType: not present
     obj = { ...registerObj };
     delete obj.accountType;
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['accountType']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['accountType']));
 
     // invalid accountType: invalid value
     obj.accountType = 'invalid value';
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['accountType']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['accountType']));
+  });
 
+  it('should properly valid invalid blogs array', () => {
     // invalid blogs: not present
     obj = { ...registerObj };
     delete obj.blogs;
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['blogs']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogs']));
 
     // invalid blogs: invalid type
     obj.blogs = 'invalid type';
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['blogs']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogs']));
 
     // invalid blogs: invalid length
     obj.blogs = ['invalid length'];
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['blogs']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogs']));
+  });
 
+  it('should properly validate invalid unkown fields', () => {
     // invalid keys: invalid field
     obj = { ...registerObj };
     obj.unknownField = 'invalid field';
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(
-      expect.arrayContaining(['unknownField']),
-    );
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
     delete obj.unknownField;
+  });
 
+  it('should properly validate valid signup object', () => {
     // valid register user object
     obj = { ...registerObj };
     result = Joi.validate(obj, registerSchema);

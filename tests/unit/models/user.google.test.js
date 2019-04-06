@@ -1,31 +1,36 @@
 const User = require('../../../model/user');
 
 describe('mongoose.user schema', () => {
-  it('should properly validate all types of request body for registering a google user', () => {
-    const googleUserObj = {
-      username: 'something',
-      email: 'something@gmail.com',
-      accountType: 'google',
-      accessToken: '294783sjdfhkjh093842384jefsdh',
-      refreshToken: 'w98798iuhfkjshf',
-      position: {
-        latitude: 90,
-        longitude: 180,
-      },
-      blogs: [],
-    };
+  const googleUserObj = {
+    username: 'something',
+    email: 'something@gmail.com',
+    accountType: 'google',
+    accessToken: '294783sjdfhkjh093842384jefsdh',
+    refreshToken: 'w98798iuhfkjshf',
+    position: {
+      latitude: 90,
+      longitude: 180,
+    },
+    blogs: [],
+  };
 
+  let obj = undefined;
+  let error = undefined;
+
+  it('should properly validate invalid username', () => {
     // invalid username: not present
-    let obj = { ...googleUserObj };
+    obj = { ...googleUserObj };
     delete obj.username;
-    let error = new User(obj).validateSync();
+    error = new User(obj).validateSync();
     expect(error.errors.username.properties.path).toBe('username');
 
     // invalid username: invalid length
     obj.username = 'so';
     error = new User(obj).validateSync();
     expect(error.errors.username.properties.path).toBe('username');
+  });
 
+  it('should properly validate invalid email', () => {
     // invalid email: not present
     obj = { ...googleUserObj };
     delete obj.email;
@@ -36,13 +41,17 @@ describe('mongoose.user schema', () => {
     obj.email = 'something';
     error = new User(obj).validateSync();
     expect(error.errors.email.properties.path).toBe('email');
+  });
 
+  it('should properly validate invalid password', () => {
     // invalid password: is present
     obj = { ...googleUserObj };
     obj.password = 'Somethinlksj';
     error = new User(obj).validateSync();
     expect(error.errors.password.properties.path).toBe('password');
+  });
 
+  it('should properly validate invalid account type', () => {
     // invalid accountType: not present
     obj = { ...googleUserObj };
     delete obj.accountType;
@@ -53,18 +62,24 @@ describe('mongoose.user schema', () => {
     obj.accountType = 'something';
     error = new User(obj).validateSync();
     expect(error.errors.accountType.properties.path).toBe('accountType');
+  });
 
+  it('should properly validate invalid access token', () => {
     // invalid accessToken: not present
     obj = { ...googleUserObj };
     delete obj.accessToken;
     error = new User(obj).validateSync();
     expect(error.errors.accessToken.properties.path).toBe('accessToken');
+  });
 
+  it('should properly validate invalid refresh token', () => {
     // valid refreshToken: allowed to be present
     obj = { ...googleUserObj };
     error = new User(obj).validateSync();
     expect(error).toBe(undefined);
+  });
 
+  it('should properly validate invalid position object', () => {
     // invalid position: not present
     obj = { ...googleUserObj };
     delete obj.position;
@@ -83,7 +98,9 @@ describe('mongoose.user schema', () => {
     error = new User(obj).validateSync();
     expect(error.errors.position.properties.path).toBe('position');
     obj.position.longitude = 180;
+  });
 
+  it('should properly validate invalid blogs array', () => {
     // invalid blogs: not present
     obj = { ...googleUserObj };
     delete obj.blogs;
@@ -99,7 +116,9 @@ describe('mongoose.user schema', () => {
     obj.blogs = ['something'];
     error = new User(obj).validateSync();
     expect(error.errors.blogs.properties.path).toBe('blogs');
+  });
 
+  it('should properly validate valid user object', () => {
     // valid user object
     obj = { ...googleUserObj };
     error = new User(obj).validateSync();
