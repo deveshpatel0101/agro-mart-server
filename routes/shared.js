@@ -140,9 +140,24 @@ router.get('/blog', (req, res) => {
   if (req.query.blogId) {
     Shared.findOne({ blogId: req.query.blogId }).then((result) => {
       if (result) {
-        return res.status(200).json({
-          error: false,
-          blog: result,
+        User.findOne({ blogs: { $elemMatch: { blogId: req.query.blogId } } }).then((userResult) => {
+          if (userResult) {
+            return res.status(200).json({
+              error: false,
+              blog: result,
+              user: {
+                username: userResult.username,
+                email: userResult.email,
+                position: userResult.position,
+              },
+            });
+          } else {
+            return res.status(200).json({
+              error: true,
+              errorType: 'blogId',
+              errorMessage: 'Specified blog does not belong to any user.',
+            });
+          }
         });
       } else {
         return res.status(200).json({
