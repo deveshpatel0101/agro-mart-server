@@ -177,9 +177,7 @@ describe('/public/shared', () => {
       let result = await request(server)
         .put('/public/shared?token=' + token)
         .send(blog);
-      expect(result.body.message).toEqual(
-        expect.stringMatching(/updates required/gi),
-      );
+      expect(result.body.message).toEqual(expect.stringMatching(/updates required/gi));
       blog.values.shared = true;
       await request(server)
         .put('/public/shared?token=' + token)
@@ -189,13 +187,11 @@ describe('/public/shared', () => {
       result = await request(server)
         .put('/public/shared?token=' + token)
         .send(blog);
-      expect(result.body.message).toEqual(
-        expect.stringMatching(/updates required/gi),
-      );
+      expect(result.body.message).toEqual(expect.stringMatching(/updates required/gi));
     });
   });
 
-  describe('GET /', () => {
+  describe('GET /blog', () => {
     let blogId;
     beforeEach(async () => {
       const { body } = await request(server)
@@ -223,10 +219,14 @@ describe('/public/shared', () => {
         .get('/public/shared/blog?blogId=' + blogId)
         .send();
       expect(result.body.error).toBeFalsy();
-      result = await Shared.findOne({ blogId });
-      expect(result).not.toBeNull();
-      expect(result).toHaveProperty('title');
-      expect(result).toHaveProperty('description');
+      let blogResultDb = await Shared.findOne({ blogId });
+      expect(result.body.blog).not.toBeNull();
+      expect(result.body.blog).toHaveProperty('title', blogResultDb.title);
+      expect(result.body.blog).toHaveProperty('description', blogResultDb.description);
+      let userResultDb = await User.findOne({ blogs: { $elemMatch: { blogId } } });
+      expect(result.body.user).toHaveProperty('username', userResultDb.username);
+      expect(result.body.user).toHaveProperty('email', userResultDb.email);
+      expect(result.body.user).toHaveProperty('position', userResultDb.position);
     });
   });
 });
