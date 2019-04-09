@@ -5,31 +5,27 @@ const uuid = require('uuid/v4');
 const User = require('../model/user');
 const Shared = require('../model/shared');
 const auth = require('../middleware/auth');
-const {
-  createBlogSchema,
-  deleteBlogSchema,
-  updateBlogSchema,
-} = require('../validators/blogs');
+const { createBlogSchema, deleteBlogSchema, updateBlogSchema } = require('../validators/blogs');
 
 // returns an array of complete blogs
 router.get('/', auth, (req, res) => {
   User.findById(req.user.id)
-    .then(result => {
+    .then((result) => {
       if (result) {
         return res.status(200).json({
           error: false,
           blogs: result.blogs,
         });
       } else {
-        return res.status(200).json({
+        return res.status(400).json({
           error: true,
           errorType: 'user',
           errorMessage: 'Unable to find the user from database.',
         });
       }
     })
-    .catch(err => {
-      return res.status(200).json({
+    .catch((err) => {
+      return res.status(500).json({
         error: true,
         errorType: 'unexpected',
         errorMessage: err,
@@ -47,7 +43,7 @@ router.post('/', auth, (req, res) => {
 
   const result = Joi.validate(obj, createBlogSchema);
   if (result.error) {
-    return res.status(200).json({
+    return res.status(400).json({
       error: true,
       errorType: result.error.details[0].path[0],
       errorMessage: result.error.details[0].message,
@@ -58,7 +54,7 @@ router.post('/', auth, (req, res) => {
   obj.lastModified = new Date(result.value.lastModified).getTime();
 
   User.findById(req.user.id)
-    .then(result => {
+    .then((result) => {
       if (result) {
         User.findOneAndUpdate(
           {
@@ -73,7 +69,7 @@ router.post('/', auth, (req, res) => {
             new: true,
           },
         )
-          .then(updatedResult => {
+          .then((updatedResult) => {
             return res.status(200).json({
               error: false,
               updated: true,
@@ -82,23 +78,23 @@ router.post('/', auth, (req, res) => {
               addedBlog: obj,
             });
           })
-          .catch(err => {
-            return res.status(200).json({
+          .catch((err) => {
+            return res.status(500).json({
               error: true,
               errorType: 'unexpected',
               errorMessage: err,
             });
           });
       } else {
-        return res.status(200).json({
+        return res.status(400).json({
           error: true,
           errorType: 'user',
           errorMessage: 'Unable to find the user in database.',
         });
       }
     })
-    .catch(err => {
-      return res.status(200).json({
+    .catch((err) => {
+      return res.status(500).json({
         error: true,
         errorType: 'unexpected',
         errorMessage: err,
@@ -114,7 +110,7 @@ router.put('/', auth, (req, res) => {
 
   const validate = Joi.validate(obj, updateBlogSchema);
   if (validate.error) {
-    return res.status(200).json({
+    return res.status(400).json({
       error: true,
       errorType: validate.error.details[0].path[0],
       errorMessage: validate.error.details[0].message,
@@ -129,11 +125,11 @@ router.put('/', auth, (req, res) => {
     obj.values.lastModified = new Date(lastModified).getTime();
   }
   User.findById(req.user.id)
-    .then(result => {
+    .then((result) => {
       let blogsArr = result.blogs;
       let updatedBlog = undefined;
       if (result) {
-        blogsArr = blogsArr.map(blog => {
+        blogsArr = blogsArr.map((blog) => {
           if (blog.blogId === obj.blogId) {
             updatedBlog = { ...blog, ...obj.values };
             return { ...blog, ...obj.values };
@@ -168,7 +164,7 @@ router.put('/', auth, (req, res) => {
               )
             : null,
         ])
-          .then(values => {
+          .then((values) => {
             return res.status(200).json({
               error: false,
               updated: true,
@@ -177,23 +173,23 @@ router.put('/', auth, (req, res) => {
               updatedBlog,
             });
           })
-          .catch(err => {
-            return res.status(200).json({
+          .catch((err) => {
+            return res.status(500).json({
               error: true,
               errorType: 'unexpected',
               errorMessage: err,
             });
           });
       } else {
-        return res.status(200).json({
+        return res.status(400).json({
           error: true,
           errorType: 'user',
           errorMessage: 'Unable to find the user in database.',
         });
       }
     })
-    .catch(err => {
-      return res.status(200).json({
+    .catch((err) => {
+      return res.status(500).json({
         error: true,
         errorType: 'unexpected',
         errorMessage: err,
@@ -212,9 +208,9 @@ router.delete('/', auth, (req, res) => {
     });
   }
   User.findById(req.user.id)
-    .then(userResult => {
+    .then((userResult) => {
       if (!userResult) {
-        return res.status(200).json({
+        return res.status(400).json({
           error: true,
           errorType: 'user',
           errorMessage: 'Unable to find the user in database.',
@@ -222,7 +218,7 @@ router.delete('/', auth, (req, res) => {
       } else {
         let blogsArr = userResult.blogs;
         let deletedBlog = undefined;
-        blogsArr = blogsArr.filter(blog => {
+        blogsArr = blogsArr.filter((blog) => {
           if (blog.blogId === req.body.blogId) {
             deletedBlog = blog;
             return false;
@@ -245,26 +241,24 @@ router.delete('/', auth, (req, res) => {
                 new: true,
               },
             ),
-            deletedBlog.shared
-              ? Shared.findOneAndRemove({ blogId: req.body.blogId })
-              : null,
+            deletedBlog.shared ? Shared.findOneAndRemove({ blogId: req.body.blogId }) : null,
           ])
-            .then(values => {
+            .then((values) => {
               return res.status(200).json({
                 error: false,
                 blogs: values[0].blogs,
                 deletedBlog,
               });
             })
-            .catch(err => {
-              return res.status(200).json({
+            .catch((err) => {
+              return res.status(500).json({
                 error: true,
                 errorType: 'unexpected',
                 errorMessage: err,
               });
             });
         } else {
-          return res.status(200).json({
+          return res.status(400).json({
             error: true,
             errorType: 'blogId',
             errorMessage: 'Specified item not found.',
@@ -272,8 +266,8 @@ router.delete('/', auth, (req, res) => {
         }
       }
     })
-    .catch(err => {
-      return res.status(200).json({
+    .catch((err) => {
+      return res.status(500).json({
         error: true,
         errorType: 'unexpected',
         errorMessage: err,

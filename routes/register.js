@@ -13,29 +13,29 @@ router.post('/', (req, res) => {
   const result = Joi.validate(userObj, registerSchema);
   if (result.error) {
     if (result.error.details[0].path[0] === 'password') {
-      return res.status(200).json({
+      return res.status(400).json({
         error: true,
         errorType: result.error.details[0].path[0],
         errorMessage:
           'Password is required and should be at least 6 characters long and should include at least one uppercase letter and a numeric character.',
       });
     } else if (result.error.details[0].path[0] === 'confirmPassword') {
-      return res.status(200).json({
+      return res.status(400).json({
         error: true,
         errorType: result.error.details[0].path[0],
         errorMessage: 'Both passwords should match.',
       });
     }
-    return res.status(200).json({
+    return res.status(400).json({
       error: true,
       errorType: result.error.details[0].path[0],
       errorMessage: result.error.details[0].message,
     });
   }
 
-  User.findOne({ email: userObj.email }).then(result => {
+  User.findOne({ email: userObj.email }).then((result) => {
     if (result) {
-      res.status(200).json({
+      res.status(400).json({
         error: true,
         errorType: 'email',
         errorMessage: 'User already exist.',
@@ -43,7 +43,7 @@ router.post('/', (req, res) => {
     } else {
       bcrypt.genSalt(10, (err, salt) => {
         if (err) {
-          res.status(200).json({
+          res.status(400).json({
             error: true,
             errorType: 'unexpected',
             errorMessage: err,
@@ -51,7 +51,7 @@ router.post('/', (req, res) => {
         } else {
           bcrypt.hash(userObj.password, salt, (err, hash) => {
             if (err) {
-              res.status(200).json({
+              res.status(500).json({
                 error: true,
                 errorType: 'unexpected',
                 errorMessage: err,
@@ -63,12 +63,11 @@ router.post('/', (req, res) => {
                 .then(() => {
                   res.status(200).json({
                     error: false,
-                    successMessage:
-                      'User created successfully. You can now login.',
+                    successMessage: 'User created successfully. You can now login.',
                   });
                 })
-                .catch(err => {
-                  res.status(200).json({
+                .catch((err) => {
+                  res.status(500).json({
                     error: true,
                     errorType: 'unexpected',
                     errorMessage: err,

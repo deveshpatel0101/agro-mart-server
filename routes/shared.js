@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
   );
 
   if (result.error) {
-    return res.status(200).json({
+    return res.status(400).json({
       error: true,
       errorType: result.error.details[0].path[0],
       errorMessage: result.error.details[0].message,
@@ -38,7 +38,7 @@ router.get('/', (req, res) => {
       });
     })
     .catch((err) => {
-      return res.status(200).json({
+      return res.status(500).json({
         error: true,
         errorType: 'unexpected',
         errorMessage: err,
@@ -49,7 +49,7 @@ router.get('/', (req, res) => {
 router.put('/', auth, (req, res) => {
   const result = Joi.validate(req.body, sharedSchema);
   if (result.error) {
-    return res.status(200).json({
+    return res.status(400).json({
       error: true,
       errorType: result.error.details[0].path[0],
       errorMessage: result.error.details[0].message,
@@ -104,7 +104,7 @@ router.put('/', auth, (req, res) => {
               });
             })
             .catch((err) => {
-              return res.status(200).json({
+              return res.status(500).json({
                 error: true,
                 errorType: 'unexpected',
                 errorMessage: err,
@@ -120,7 +120,7 @@ router.put('/', auth, (req, res) => {
           });
         }
       } else {
-        return res.status(200).json({
+        return res.status(400).json({
           error: true,
           errorType: 'user',
           errorMessage: 'Unable to find the user from database.',
@@ -128,7 +128,7 @@ router.put('/', auth, (req, res) => {
       }
     })
     .catch((err) => {
-      return res.status(200).json({
+      return res.status(500).json({
         error: true,
         errorType: 'unexpected',
         errorMessage: err,
@@ -152,7 +152,7 @@ router.get('/blog', (req, res) => {
               },
             });
           } else {
-            return res.status(200).json({
+            return res.status(400).json({
               error: true,
               errorType: 'blogId',
               errorMessage: 'Specified blog does not belong to any user.',
@@ -160,7 +160,7 @@ router.get('/blog', (req, res) => {
           }
         });
       } else {
-        return res.status(200).json({
+        return res.status(400).json({
           error: true,
           errorType: 'blogId',
           errorMessage: 'Specified item does not exist.',
@@ -168,7 +168,7 @@ router.get('/blog', (req, res) => {
       }
     });
   } else {
-    return res.status(200).json({
+    return res.status(400).json({
       error: true,
       errorType: 'blogId',
       errorMessage: 'Id is required in query parameter.',

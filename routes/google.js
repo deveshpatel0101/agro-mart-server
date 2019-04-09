@@ -14,24 +14,24 @@ router.post('/', (req, res) => {
     blogs: [],
   };
   if (!googleUser.email) {
-    return res.status(200).json({
+    return res.status(400).json({
       error: true,
       errorType: 'email',
       errorMessage: '"email" is required.',
     });
   } else if (!validator.isEmail(googleUser.email)) {
-    return res.status(200).json({
+    return res.status(400).json({
       error: true,
       errorType: 'email',
       errorMessage: '"email" must be valid.',
     });
   }
   User.findOne({ email: googleUser.email })
-    .then(result => {
+    .then((result) => {
       if (!result) {
         const result = Joi.validate(googleUser, googleSchema);
         if (result.error) {
-          return res.status(200).json({
+          return res.status(400).json({
             error: true,
             errorType: result.error.details[0].path[0],
             problem: 'user does not exist',
@@ -41,7 +41,7 @@ router.post('/', (req, res) => {
 
         new User(googleUser)
           .save()
-          .then(savedResult => {
+          .then((savedResult) => {
             const jwtToken = generateJwt(savedResult.id);
             return res.status(200).json({
               error: false,
@@ -49,8 +49,8 @@ router.post('/', (req, res) => {
               blogs: [],
             });
           })
-          .catch(err => {
-            return res.status(200).json({
+          .catch((err) => {
+            return res.status(500).json({
               error: true,
               errorType: 'unexpected',
               errorMessage: err,
@@ -65,8 +65,8 @@ router.post('/', (req, res) => {
         });
       }
     })
-    .catch(err => {
-      return res.status(200).json({
+    .catch((err) => {
+      return res.status(500).json({
         error: true,
         errorType: 'unexpected',
         errorMessage: err,
