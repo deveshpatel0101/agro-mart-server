@@ -12,7 +12,7 @@ module.exports.googleSchema = {
   accountType: Joi.string()
     .regex(/^google$/)
     .required(),
-  googleId: Joi.number(),
+  googleId: Joi.string(),
   accessToken: Joi.string().required(),
   position: Joi.object({
     latitude: Joi.number()

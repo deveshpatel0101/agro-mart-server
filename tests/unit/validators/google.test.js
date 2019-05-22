@@ -8,7 +8,7 @@ describe('joi google validator', () => {
     profileImage: 'https://images.com/profile.jpg',
     refreshToken: 'sdhf9847098ufsdhf98riudh-98734shf',
     accountType: 'google',
-    googleId: 297834091870987,
+    googleId: '297834091870987',
     accessToken: 'asdu9w8raihdfiu3987af-sdjashd-98-sdfhjhd',
     position: {
       latitude: 90,
