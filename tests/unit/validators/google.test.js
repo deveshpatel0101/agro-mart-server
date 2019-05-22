@@ -6,7 +6,6 @@ describe('joi google validator', () => {
     username: 'something',
     email: 'something@gmail.com',
     profileImage: 'https://images.com/profile.jpg',
-    refreshToken: 'sdhf9847098ufsdhf98riudh-98734shf',
     accountType: 'google',
     googleId: '297834091870987',
     accessToken: 'asdu9w8raihdfiu3987af-sdjashd-98-sdfhjhd',
@@ -50,14 +49,6 @@ describe('joi google validator', () => {
     // valid profileImage: not present
     obj = { ...googleObj };
     delete obj.profileImage;
-    result = Joi.validate(obj, googleSchema);
-    expect(result.error).toBe(null);
-  });
-
-  it('should properly validate invalid refresh token', () => {
-    // valid refreshToken: not present
-    obj = { ...googleObj };
-    delete obj.refreshToken;
     result = Joi.validate(obj, googleSchema);
     expect(result.error).toBe(null);
   });

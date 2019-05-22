@@ -113,7 +113,6 @@ const originalUser = {
   username: 'google',
   email: 'google12@gmail.com',
   accessToken: 'thisisalongaccesstoken',
-  refreshToken: 'thisisalongrefreshtoken',
   position: {
     latitude: 90,
     longitude: 180,

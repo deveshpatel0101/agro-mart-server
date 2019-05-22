@@ -8,7 +8,6 @@ module.exports.googleSchema = {
     .email()
     .required(),
   profileImage: Joi.string(),
-  refreshToken: Joi.string(),
   accountType: Joi.string()
     .regex(/^google$/)
     .required(),
