@@ -62,7 +62,7 @@ describe('joi google validator', () => {
     obj = { ...googleObj };
     delete obj.googleId;
     result = Joi.validate(obj, googleSchema);
-    expect(result.error).toBe(null);
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['googleId']));
   });
 
   it('should properly validate invalid', () => {

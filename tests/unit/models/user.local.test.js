@@ -75,14 +75,6 @@ describe('mongoose.user schema', () => {
     expect(error.errors.accessToken.properties.path).toBe('accessToken');
   });
 
-  it('should properly validate invalid refresh tokens', () => {
-    // invalid refreshToken: is present
-    obj = { ...localUserObj };
-    obj.refreshToken = 'w98798iuhfkjshf';
-    error = new User(obj).validateSync();
-    expect(error.errors.refreshToken.properties.path).toBe('refreshToken');
-  });
-
   it('should properly validate invalid position object', () => {
     // invalid position: not present
     obj = { ...localUserObj };

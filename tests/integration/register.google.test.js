@@ -42,15 +42,6 @@ describe('/user/auth/google/register', () => {
       await exec();
     });
 
-    it('should return error if inavlid or no account type is passed', async () => {
-      user = { ...originalUser };
-      errorType = 'accountType';
-      delete user.accountType;
-      await exec();
-      user.accountType = 'invalid value';
-      await exec();
-    });
-
     it('should return error if invalid or no access token is passed', async () => {
       user = { ...originalUser };
       errorType = 'accessToken';
@@ -89,23 +80,6 @@ describe('/user/auth/google/register', () => {
       user.position.longitude = 180;
     });
 
-    it('should return error if invalid blogs array is passed', async () => {
-      user = { ...originalUser };
-      errorType = 'blogs';
-
-      // invalid blogs: not present
-      delete user.blogs;
-      await exec();
-
-      // invalid blogs: invalid type
-      user.blogs = 'invalid type';
-      await exec();
-
-      // invalid blogs: invalid length
-      user.blogs = ['invalid length'];
-      await exec();
-    });
-
     it('should return error if invalid field is passed in position object', async () => {
       user = { ...originalUser };
       errorType = 'position';
@@ -140,12 +114,10 @@ describe('/user/auth/google/register', () => {
 const originalUser = {
   username: 'google',
   email: 'google12@gmail.com',
-  accountType: 'google',
   googleId: 'longusergoogleid',
   accessToken: 'invalid access token',
   position: {
     latitude: 90,
     longitude: 180,
   },
-  blogs: [],
 };

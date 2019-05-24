@@ -22,16 +22,16 @@ describe('/user/auth/google/login', () => {
       result = await request(server)
         .post('/user/auth/google/login')
         .send(obj);
-      epxect(result.body.error).toBeTruthy();
-      epxect(result.body.errorType).toBe('accessToken');
+      expect(result.body.error).toBeTruthy();
+      expect(result.body.errorType).toBe('accessToken');
 
       // invalid access token
       obj.accessToken = 'invalid access token';
       result = await request(server)
         .post('/user/auth/google/login')
         .send(obj);
-      epxect(result.body.error).toBeTruthy();
-      epxect(result.body.errorType).toBe('accessToken');
+      expect(result.body.error).toBeTruthy();
+      expect(result.body.errorType).toBe('accessToken');
     });
 
     it('should return no error if valid access token is present', async () => {
@@ -41,7 +41,7 @@ describe('/user/auth/google/login', () => {
       // result = await request(server)
       //   .post('/user/auth/google/login')
       //   .send(obj);
-      // epxect(result.body.error).toBeFalsy();
+      // expect(result.body.error).toBeFalsy();
     });
   });
 });
