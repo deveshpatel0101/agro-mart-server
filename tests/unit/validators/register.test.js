@@ -118,7 +118,7 @@ describe('joi register validator', () => {
     expect(result.error.details[0].path).toEqual(expect.arrayContaining(['accountType']));
   });
 
-  it('should properly valid invalid blogs array', () => {
+  it('should properly validate invalid blogs array', () => {
     // invalid blogs: not present
     obj = { ...registerObj };
     delete obj.blogs;

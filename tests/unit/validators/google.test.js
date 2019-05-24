@@ -5,7 +5,6 @@ describe('joi google validator', () => {
   const googleObj = {
     username: 'something',
     email: 'something@gmail.com',
-    profileImage: 'https://images.com/profile.jpg',
     accountType: 'google',
     googleId: '297834091870987',
     accessToken: 'asdu9w8raihdfiu3987af-sdjashd-98-sdfhjhd',
@@ -43,14 +42,6 @@ describe('joi google validator', () => {
     obj.email = 'something';
     result = Joi.validate(obj, googleSchema);
     expect(result.error.details[0].path).toEqual(expect.arrayContaining(['email']));
-  });
-
-  it('should properly validate invalid profile image', () => {
-    // valid profileImage: not present
-    obj = { ...googleObj };
-    delete obj.profileImage;
-    result = Joi.validate(obj, googleSchema);
-    expect(result.error).toBe(null);
   });
 
   it('should properly validate invalid account type', () => {

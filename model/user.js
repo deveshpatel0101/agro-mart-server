@@ -45,9 +45,6 @@ let UserSchema = new Schema({
       }
     },
   },
-  profileImage: {
-    type: String,
-  },
   accountType: {
     type: String,
     required: true,
@@ -61,15 +58,6 @@ let UserSchema = new Schema({
     validate: function() {
       return (
         (this.accountType === 'local' && this.accessToken === undefined) ||
-        this.accountType === 'google'
-      );
-    },
-  },
-  refreshToken: {
-    type: String,
-    validate: function() {
-      return (
-        (this.accountType === 'local' && this.refreshToken === undefined) ||
         this.accountType === 'google'
       );
     },

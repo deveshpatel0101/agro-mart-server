@@ -69,9 +69,7 @@ describe('/user/login', () => {
       user.email = 'userdoesnotexist@gmail.com';
       errorType = 'email';
       let result = await exec();
-      expect(result.body.errorMessage).toEqual(
-        expect.stringMatching(/does not exist/gi),
-      );
+      expect(result.body.errorMessage).toEqual(expect.stringMatching(/does not exist/gi));
     });
 
     it('should return error if password is wrong', async () => {
@@ -79,9 +77,7 @@ describe('/user/login', () => {
       user.password = 'Something123@';
       errorType = 'password';
       let result = await exec();
-      expect(result.body.errorMessage).toEqual(
-        expect.stringMatching(/wrong password/gi),
-      );
+      expect(result.body.errorMessage).toEqual(expect.stringMatching(/wrong password/gi));
     });
 
     it('should return no error and jwtToken if valid email and password is passed', async () => {
@@ -91,6 +87,8 @@ describe('/user/login', () => {
         .send(user);
       expect(result.body.error).toBeFalsy();
       expect(result.body).toHaveProperty('jwtToken');
+      let dbResult = await User.findOne({ email: loginUser.email });
+      expect(dbResult.blogs).toEqual(result.body.blogs);
     });
 
     it('should return valid token and user should be able to get all blogs using that token', async () => {
@@ -101,10 +99,8 @@ describe('/user/login', () => {
       result = await request(server)
         .get('/user/blogs?token=' + token)
         .send();
-      expect(result.body.blogs[0]).toHaveProperty('title');
-      expect(result.body.blogs[0]).toHaveProperty('description');
-      expect(result.body.blogs[1]).toHaveProperty('title');
-      expect(result.body.blogs[1]).toHaveProperty('description');
+      let dbResult = await User.findOne({ email: loginUser.email });
+      expect(dbResult.blogs).toEqual(result.body.blogs);
     });
   });
 });

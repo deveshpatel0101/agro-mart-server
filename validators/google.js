@@ -7,11 +7,10 @@ module.exports.googleSchema = {
   email: Joi.string()
     .email()
     .required(),
-  profileImage: Joi.string(),
   accountType: Joi.string()
     .regex(/^google$/)
     .required(),
-  googleId: Joi.string(),
+  googleId: Joi.string().required(),
   accessToken: Joi.string().required(),
   position: Joi.object({
     latitude: Joi.number()

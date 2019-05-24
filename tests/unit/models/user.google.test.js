@@ -6,7 +6,6 @@ describe('mongoose.user schema', () => {
     email: 'something@gmail.com',
     accountType: 'google',
     accessToken: '294783sjdfhkjh093842384jefsdh',
-    refreshToken: 'w98798iuhfkjshf',
     position: {
       latitude: 90,
       longitude: 180,
@@ -70,13 +69,6 @@ describe('mongoose.user schema', () => {
     delete obj.accessToken;
     error = new User(obj).validateSync();
     expect(error.errors.accessToken.properties.path).toBe('accessToken');
-  });
-
-  it('should properly validate invalid refresh token', () => {
-    // valid refreshToken: allowed to be present
-    obj = { ...googleUserObj };
-    error = new User(obj).validateSync();
-    expect(error).toBe(undefined);
   });
 
   it('should properly validate invalid position object', () => {
