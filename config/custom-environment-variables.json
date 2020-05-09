@@ -1,4 +1,4 @@
 {
-  "jwtKey": "my_blog_jwt_key",
-  "googleClientId": "my_blog_google_client_id"
+  "jwtKey": "AGRO_MART_JWT_KEY",
+  "googleClientId": "AGRO_MART_GOOGLE_CLIENT_ID"
 }

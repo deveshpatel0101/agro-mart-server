@@ -1,4 +1,5 @@
 {
   "name": "My Blog - Default",
-  "jwtKey": "1234"
+  "jwtKey": "jwtKey",
+  "googleClientId": "googleClientId"
 }
