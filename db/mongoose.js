@@ -4,9 +4,9 @@ const winston = require('winston');
 module.exports = () => {
   let db = '';
   if (process.env.NODE_ENV === 'test') {
-    db = 'mongodb://localhost:27017/my_blog_test';
+    db = 'mongodb://localhost:27017/agro_mart_test';
   } else {
-    db = process.env.MONGODB || 'mongodb://localhost:27017/my_blog';
+    db = process.env.MONGODB || 'mongodb://localhost:27017/agro_mart';
   }
   mongoose
     .connect(db, {

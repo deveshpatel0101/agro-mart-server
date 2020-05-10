@@ -1,6 +1,6 @@
 const bodyParser = require('body-parser');
 
-const blog = require('../routes/blogs');
+const item = require('../routes/items');
 const shared = require('../routes/shared');
 const login = require('../routes/login');
 const register = require('../routes/register');
@@ -29,9 +29,12 @@ module.exports = (app) => {
 
   // REST API's
   app.use('/user/auth/google', google);
-  app.use('/user/blogs', blog);
+  app.use('/user/items', item);
   app.use('/public/shared', shared);
   app.use('/user/login', login);
   app.use('/user/register', register);
+  app.get('/', (req, res) => {
+    res.redirect('https://github.com/deveshpatel0101/agro-mart-server')
+  })
   app.use(error);
 };

@@ -22,7 +22,7 @@ module.exports.googleSchema = {
       .max(180)
       .required(),
   }).required(),
-  blogs: Joi.array()
+  items: Joi.array()
     .length(0)
     .required(),
 };

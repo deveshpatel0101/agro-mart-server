@@ -1,6 +1,6 @@
 const User = require('../../model/user');
 const Shared = require('../../model/shared');
-const { createBlog, originalUser } = require('./blogs.test');
+const { createItem, originalUser } = require('./items.test');
 const request = require('supertest');
 
 let server;
@@ -17,12 +17,12 @@ describe('/public/shared', () => {
       .send({ email: originalUser.email, password: originalUser.password });
     const token = body.jwtToken;
     let result = await request(server)
-      .post('/user/blogs?token=' + token)
-      .send(createBlog());
+      .post('/user/items?token=' + token)
+      .send(createItem());
     await request(server)
-      .post('/user/blogs?token=' + token)
-      .send(createBlog());
-    id = result.body.blogId;
+      .post('/user/items?token=' + token)
+      .send(createItem());
+    id = result.body.itemId;
   });
 
   afterEach(async () => {
@@ -63,7 +63,7 @@ describe('/public/shared', () => {
       await exec();
     });
 
-    it('should return blogs if valid page or per page value is passed', async () => {
+    it('should return items if valid page or per page value is passed', async () => {
       page = 1;
       per_page = 10;
       let result = await request(server)
@@ -74,7 +74,7 @@ describe('/public/shared', () => {
   });
 
   describe('PUT /', () => {
-    let blog, errorType, token;
+    let item, errorType, token;
 
     beforeEach(async () => {
       const { body } = await request(server)
@@ -86,7 +86,7 @@ describe('/public/shared', () => {
     const exec = async () => {
       let result = await request(server)
         .put('/public/shared?token=' + token)
-        .send(blog);
+        .send(item);
       expect(result.body.error).toBeTruthy();
       expect(result.body.errorType).toBe(errorType);
     };
@@ -94,136 +94,136 @@ describe('/public/shared', () => {
     const checkShared = async () => {
       await request(server)
         .put('/public/shared?token=' + token)
-        .send(blog);
-      return await Shared.findOne({ blogId: blog.blogId });
+        .send(item);
+      return await Shared.findOne({ itemId: item.itemId });
     };
 
     const checkInUsers = async () => {
       let result = await User.findOne({ email: originalUser.email });
-      let b = result.blogs.find((b) => b.blogId === blog.blogId);
+      let b = result.items.find((b) => b.itemId === item.itemId);
       expect(b).toBeDefined();
-      expect(b).toHaveProperty('shared', blog.values.shared);
+      expect(b).toHaveProperty('shared', item.values.shared);
     };
 
-    it('should return error if invalid or no blogId is passed', async () => {
-      blog = {};
-      errorType = 'blogId';
+    it('should return error if invalid or no itemId is passed', async () => {
+      item = {};
+      errorType = 'itemId';
       await exec();
-      blog = { blogId: 'something' };
+      item = { itemId: 'something' };
       await exec();
     });
 
     it('should return error if invalid or no values object is passed', async () => {
-      blog = { blogId: id };
+      item = { itemId: id };
       errorType = 'values';
       await exec();
-      blog.values = {};
+      item.values = {};
       await exec();
     });
 
     it('should return error if invalid field is passed in values object', async () => {
-      blog = { blogId: id, values: { shared: true } };
-      blog.values.unknownField = 'something random';
+      item = { itemId: id, values: { shared: true } };
+      item.values.unknownField = 'something random';
       errorType = 'values';
       await exec();
-      delete blog.values.unknownField;
+      delete item.values.unknownField;
     });
 
     it('should return error if invalid field is passed in request body', async () => {
-      blog.unknownField = 'something random';
+      item.unknownField = 'something random';
       errorType = 'unknownField';
       await exec();
-      delete blog.unknownField;
+      delete item.unknownField;
     });
 
     it('should return no error if valid object is passed', async () => {
-      blog = { blogId: id, values: { shared: true } };
+      item = { itemId: id, values: { shared: true } };
       let result = await request(server)
         .put('/public/shared?token=' + token)
-        .send(blog);
+        .send(item);
       expect(result.body.error).toBeFalsy();
-      let b = result.body.blogs.find((b) => b.blogId === blog.blogId);
+      let b = result.body.items.find((b) => b.itemId === item.itemId);
       expect(b).toBeDefined();
       expect(b).toHaveProperty('shared', true);
     });
 
-    it("should save the blog in shared collection if shared is true and update it in user's blogs", async () => {
-      blog = { blogId: id, values: { shared: true } };
+    it("should save the item in shared collection if shared is true and update it in user's items", async () => {
+      item = { itemId: id, values: { shared: true } };
       let result = await checkShared();
       expect(result).toBeDefined();
-      expect(result).toHaveProperty('shared', blog.values.shared);
+      expect(result).toHaveProperty('shared', item.values.shared);
       await checkInUsers();
     });
 
-    it("should delete the blog from shared collection if shared is false and update it in user's blogs", async () => {
-      blog = { blogId: id, values: { shared: true } };
+    it("should delete the item from shared collection if shared is false and update it in user's items", async () => {
+      item = { itemId: id, values: { shared: true } };
 
-      // share the blog
+      // share the item
       let result = await checkShared();
       expect(result).toBeDefined();
-      expect(result).toHaveProperty('shared', blog.values.shared);
+      expect(result).toHaveProperty('shared', item.values.shared);
 
-      // unshare the blog
-      blog.values.shared = false;
+      // unshare the item
+      item.values.shared = false;
       result = await checkShared();
       expect(result).toBeNull();
       await checkInUsers();
     });
 
     it('should do nothing if current value of shared is passed to update again', async () => {
-      blog = { blogId: id, values: { shared: false } };
+      item = { itemId: id, values: { shared: false } };
 
       // no updates required for false
       let result = await request(server)
         .put('/public/shared?token=' + token)
-        .send(blog);
+        .send(item);
       expect(result.body.message).toEqual(expect.stringMatching(/updates required/gi));
-      blog.values.shared = true;
+      item.values.shared = true;
       await request(server)
         .put('/public/shared?token=' + token)
-        .send(blog);
+        .send(item);
 
       // no updates required for true
       result = await request(server)
         .put('/public/shared?token=' + token)
-        .send(blog);
+        .send(item);
       expect(result.body.message).toEqual(expect.stringMatching(/updates required/gi));
     });
   });
 
-  describe('GET /blog', () => {
-    let blogId;
+  describe('GET /item', () => {
+    let itemId;
     beforeEach(async () => {
       const { body } = await request(server)
         .post('/user/login')
         .send({ email: originalUser.email, password: originalUser.password });
-      blogId = id;
+      itemId = id;
       await request(server)
         .put('/public/shared?token=' + body.jwtToken)
-        .send({ blogId: id, values: { shared: true } });
+        .send({ itemId: id, values: { shared: true } });
     });
 
-    it('should return error if invalid or no blogId is passed in parameter', async () => {
+    it('should return error if invalid or no itemId is passed in parameter', async () => {
       let result = await request(server)
-        .get('/public/shared/blog')
+        .get('/public/shared/item')
         .send();
       expect(result.body.error).toBeTruthy();
       result = await request(server)
-        .get('/public/shared/blog?blogId=')
+        .get('/public/shared/item?itemId=')
         .send();
       expect(result.body.error).toBeTruthy();
     });
 
-    it('should return no error if valid blogId is passed in parameter', async () => {
+    it('should return no error if valid itemId is passed in parameter', async () => {
       let result = await request(server)
-        .get('/public/shared/blog?blogId=' + blogId)
+        .get('/public/shared/item?itemId=' + itemId)
         .send();
       expect(result.body.error).toBeFalsy();
-      let blogResultDb = await Shared.findOne({ blogId });
-      expect(result.body.blog).not.toBeNull();
-      expect(result.body.blog).toHaveProperty('title', blogResultDb.title);
-      expect(result.body.blog).toHaveProperty('description', blogResultDb.description);
-      let userResultDb = await User.findOne({ blogs: { $elemMatch: { blogId } } });
+      let itemResultDb = await Shared.findOne({ itemId });
+      expect(result.body.item).not.toBeNull();
+      expect(result.body.item).toHaveProperty('title', itemResultDb.title);
+      expect(result.body.item).toHaveProperty('description', itemResultDb.description);
+      let userResultDb = await User.findOne({ items: { $elemMatch: { itemId } } });
       expect(result.body.user).toHaveProperty('username', userResultDb.username);
       expect(result.body.user).toHaveProperty('email', userResultDb.email);
       expect(result.body.user).toHaveProperty('position', userResultDb.position);

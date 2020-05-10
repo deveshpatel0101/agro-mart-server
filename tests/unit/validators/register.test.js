@@ -12,7 +12,7 @@ describe('joi register validator', () => {
       longitude: 180,
     },
     accountType: 'local',
-    blogs: [],
+    items: [],
   };
 
   let obj = undefined;
@@ -118,22 +118,22 @@ describe('joi register validator', () => {
     expect(result.error.details[0].path).toEqual(expect.arrayContaining(['accountType']));
   });
 
-  it('should properly validate invalid blogs array', () => {
-    // invalid blogs: not present
+  it('should properly validate invalid items array', () => {
+    // invalid items: not present
     obj = { ...registerObj };
-    delete obj.blogs;
+    delete obj.items;
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogs']));
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['items']));
 
-    // invalid blogs: invalid type
-    obj.blogs = 'invalid type';
+    // invalid items: invalid type
+    obj.items = 'invalid type';
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogs']));
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['items']));
 
-    // invalid blogs: invalid length
-    obj.blogs = ['invalid length'];
+    // invalid items: invalid length
+    obj.items = ['invalid length'];
     result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogs']));
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['items']));
   });
 
   it('should properly validate invalid unkown fields', () => {

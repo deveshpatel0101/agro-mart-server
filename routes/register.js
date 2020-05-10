@@ -8,7 +8,7 @@ router.post('/', (req, res) => {
   let userObj = {
     ...req.body,
     accountType: 'local',
-    blogs: [],
+    items: [],
   };
   const result = Joi.validate(userObj, registerSchema);
   if (result.error) {

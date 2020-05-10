@@ -68,11 +68,11 @@ let UserSchema = new Schema({
       this.accountType === 'google';
     },
   },
-  blogs: {
+  items: {
     type: Object,
     required: true,
     validate: function() {
-      return this.blogs && Array.isArray(this.blogs) && this.blogs.length === 0;
+      return this.items && Array.isArray(this.items) && this.items.length === 0;
     },
   },
   position: {

@@ -4,12 +4,12 @@ const Joi = require('joi');
 const Shared = require('../model/shared');
 const User = require('../model/user');
 const auth = require('../middleware/auth');
-const { sharedSchema, getSharedBlogsSchema } = require('../validators/shared');
+const { sharedSchema, getSharedItemsSchema } = require('../validators/shared');
 
 router.get('/', (req, res) => {
   const result = Joi.validate(
     { q: req.query.q, page: req.query.page, per_page: req.query.per_page },
-    getSharedBlogsSchema,
+    getSharedItemsSchema,
   );
 
   if (result.error) {
@@ -34,7 +34,7 @@ router.get('/', (req, res) => {
     .then((result) => {
       return res.status(200).json({
         error: false,
-        blogs: result,
+        items: result,
       });
     })
     .catch((err) => {
@@ -60,22 +60,22 @@ router.put('/', auth, (req, res) => {
       if (userResult) {
         // doNothing flag is used to know whether the actual shared value of db and shared value from request conflicts. if so then only update the db.
         let doNothing = false,
-          sharedBlog;
-        let finalBlogsArr = userResult.blogs.map((blog) => {
-          if (blog.blogId === req.body.blogId) {
-            if (blog.shared === req.body.values.shared) {
+          sharedItem;
+        let finalItemsArr = userResult.items.map((item) => {
+          if (item.itemId === req.body.itemId) {
+            if (item.shared === req.body.values.shared) {
               doNothing = true;
             }
             if (req.body.values.shared) {
-              sharedBlog = {
-                ...blog,
+              sharedItem = {
+                ...item,
                 position: { ...userResult.position },
                 shared: req.body.values.shared,
               };
             }
-            return { ...blog, shared: req.body.values.shared };
+            return { ...item, shared: req.body.values.shared };
           }
-          return blog;
+          return item;
         });
         if (!doNothing) {
           Promise.all([
@@ -83,7 +83,7 @@ router.put('/', auth, (req, res) => {
               { _id: req.user.id },
               {
                 $set: {
-                  blogs: finalBlogsArr,
+                  items: finalItemsArr,
                 },
               },
               {
@@ -91,16 +91,16 @@ router.put('/', auth, (req, res) => {
               },
             ),
             req.body.values.shared
-              ? new Shared({ ...sharedBlog }).save()
-              : Shared.findOneAndDelete({ blogId: req.body.blogId }),
+              ? new Shared({ ...sharedItem }).save()
+              : Shared.findOneAndDelete({ itemId: req.body.itemId }),
           ])
             .then((values) => {
               return res.status(200).json({
                 error: false,
                 message: 'Updated successfully.',
-                blogId: req.body.blogId,
-                blogs: values[0].blogs,
-                sharedBlog,
+                itemId: req.body.itemId,
+                items: values[0].items,
+                sharedItem,
               });
             })
             .catch((err) => {
@@ -114,9 +114,9 @@ router.put('/', auth, (req, res) => {
           return res.status(200).json({
             error: false,
             message: 'No updates required',
-            blogId: req.body.blogId,
-            blogs: userResult.blogs,
-            sharedBlog,
+            itemId: req.body.itemId,
+            items: userResult.items,
+            sharedItem,
           });
         }
       } else {
@@ -136,15 +136,15 @@ router.put('/', auth, (req, res) => {
     });
 });
 
-router.get('/blog', (req, res) => {
-  if (req.query.blogId) {
-    Shared.findOne({ blogId: req.query.blogId }).then((result) => {
+router.get('/item', (req, res) => {
+  if (req.query.itemId) {
+    Shared.findOne({ itemId: req.query.itemId }).then((result) => {
       if (result) {
-        User.findOne({ blogs: { $elemMatch: { blogId: req.query.blogId } } }).then((userResult) => {
+        User.findOne({ items: { $elemMatch: { itemId: req.query.itemId } } }).then((userResult) => {
           if (userResult) {
             return res.status(200).json({
               error: false,
-              blog: result,
+              item: result,
               user: {
                 username: userResult.username,
                 email: userResult.email,
@@ -154,15 +154,15 @@ router.get('/blog', (req, res) => {
           } else {
             return res.status(400).json({
               error: true,
-              errorType: 'blogId',
-              errorMessage: 'Specified blog does not belong to any user.',
+              errorType: 'itemId',
+              errorMessage: 'Specified item does not belong to any user.',
             });
           }
         });
       } else {
         return res.status(400).json({
           error: true,
-          errorType: 'blogId',
+          errorType: 'itemId',
           errorMessage: 'Specified item does not exist.',
         });
       }
@@ -170,7 +170,7 @@ router.get('/blog', (req, res) => {
   } else {
     return res.status(400).json({
       error: true,
-      errorType: 'blogId',
+      errorType: 'itemId',
       errorMessage: 'Id is required in query parameter.',
     });
   }

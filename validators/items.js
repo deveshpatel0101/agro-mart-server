@@ -1,7 +1,7 @@
 const Joi = require('joi');
 
-module.exports.createBlogSchema = {
-  blogId: Joi.string()
+module.exports.createItemSchema = {
+  itemId: Joi.string()
     .guid({ version: ['uuidv4'] })
     .required(),
   title: Joi.string()
@@ -17,8 +17,8 @@ module.exports.createBlogSchema = {
     .required(),
 };
 
-module.exports.updateBlogSchema = {
-  blogId: Joi.string()
+module.exports.updateItemSchema = {
+  itemId: Joi.string()
     .guid({ version: ['uuidv4'] })
     .required(),
   values: Joi.object({
@@ -29,8 +29,8 @@ module.exports.updateBlogSchema = {
   }).required(),
 };
 
-module.exports.deleteBlogSchema = {
-  blogId: Joi.string()
+module.exports.deleteItemSchema = {
+  itemId: Joi.string()
     .guid({ version: ['uuidv4'] })
     .required(),
 };

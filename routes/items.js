@@ -5,16 +5,16 @@ const uuid = require('uuid/v4');
 const User = require('../model/user');
 const Shared = require('../model/shared');
 const auth = require('../middleware/auth');
-const { createBlogSchema, deleteBlogSchema, updateBlogSchema } = require('../validators/blogs');
+const { createItemSchema, deleteItemSchema, updateItemSchema } = require('../validators/items');
 
-// returns an array of complete blogs
+// returns an array of complete items
 router.get('/', auth, (req, res) => {
   User.findById(req.user.id)
     .then((result) => {
       if (result) {
         return res.status(200).json({
           error: false,
-          blogs: result.blogs,
+          items: result.items,
         });
       } else {
         return res.status(400).json({
@@ -33,15 +33,15 @@ router.get('/', auth, (req, res) => {
     });
 });
 
-// add a new blog to the blogs array
+// add a new item to the items array
 router.post('/', auth, (req, res) => {
   const obj = {
     ...req.body,
-    blogId: uuid(),
+    itemId: uuid(),
     shared: false,
   };
 
-  const result = Joi.validate(obj, createBlogSchema);
+  const result = Joi.validate(obj, createItemSchema);
   if (result.error) {
     return res.status(400).json({
       error: true,
@@ -62,7 +62,7 @@ router.post('/', auth, (req, res) => {
           },
           {
             $push: {
-              blogs: obj,
+              items: obj,
             },
           },
           {
@@ -73,9 +73,9 @@ router.post('/', auth, (req, res) => {
             return res.status(200).json({
               error: false,
               updated: true,
-              blogId: obj.blogId,
-              blogs: updatedResult.blogs,
-              addedBlog: obj,
+              itemId: obj.itemId,
+              items: updatedResult.items,
+              addedItem: obj,
             });
           })
           .catch((err) => {
@@ -102,13 +102,13 @@ router.post('/', auth, (req, res) => {
     });
 });
 
-// updates a blog specified by blog object. id is necessary.
+// updates a item specified by item object. id is necessary.
 router.put('/', auth, (req, res) => {
   const obj = {
     ...req.body,
   };
 
-  const validate = Joi.validate(obj, updateBlogSchema);
+  const validate = Joi.validate(obj, updateItemSchema);
   if (validate.error) {
     return res.status(400).json({
       error: true,
@@ -126,15 +126,15 @@ router.put('/', auth, (req, res) => {
   }
   User.findById(req.user.id)
     .then((result) => {
-      let blogsArr = result.blogs;
-      let updatedBlog = undefined;
+      let itemsArr = result.items;
+      let updatedItem = undefined;
       if (result) {
-        blogsArr = blogsArr.map((blog) => {
-          if (blog.blogId === obj.blogId) {
-            updatedBlog = { ...blog, ...obj.values };
-            return { ...blog, ...obj.values };
+        itemsArr = itemsArr.map((item) => {
+          if (item.itemId === obj.itemId) {
+            updatedItem = { ...item, ...obj.values };
+            return { ...item, ...obj.values };
           } else {
-            return blog;
+            return item;
           }
         });
         Promise.all([
@@ -144,21 +144,21 @@ router.put('/', auth, (req, res) => {
             },
             {
               $set: {
-                blogs: blogsArr,
+                items: itemsArr,
               },
             },
             {
               new: true,
             },
           ),
-          updatedBlog
+          updatedItem
             ? Shared.findOneAndUpdate(
                 {
-                  blogId: req.body.blogId,
+                  itemId: req.body.itemId,
                 },
                 {
                   $set: {
-                    ...updatedBlog,
+                    ...updatedItem,
                   },
                 },
               )
@@ -168,9 +168,9 @@ router.put('/', auth, (req, res) => {
             return res.status(200).json({
               error: false,
               updated: true,
-              blogId: updatedBlog.blogId,
-              blogs: values[0].blogs,
-              updatedBlog,
+              itemId: updatedItem.itemId,
+              items: values[0].items,
+              updatedItem,
             });
           })
           .catch((err) => {
@@ -197,9 +197,9 @@ router.put('/', auth, (req, res) => {
     });
 });
 
-// deletes a specific blog specified by blogId in request body
+// deletes a specific item specified by itemId in request body
 router.delete('/', auth, (req, res) => {
-  const result = Joi.validate(req.body, deleteBlogSchema);
+  const result = Joi.validate(req.body, deleteItemSchema);
   if (result.error) {
     return res.status(200).json({
       error: true,
@@ -216,17 +216,17 @@ router.delete('/', auth, (req, res) => {
           errorMessage: 'Unable to find the user in database.',
         });
       } else {
-        let blogsArr = userResult.blogs;
-        let deletedBlog = undefined;
-        blogsArr = blogsArr.filter((blog) => {
-          if (blog.blogId === req.body.blogId) {
-            deletedBlog = blog;
+        let itemsArr = userResult.items;
+        let deletedItem = undefined;
+        itemsArr = itemsArr.filter((item) => {
+          if (item.itemId === req.body.itemId) {
+            deletedItem = item;
             return false;
           } else {
             return true;
           }
         });
-        if (deletedBlog) {
+        if (deletedItem) {
           Promise.all([
             User.findOneAndUpdate(
               {
@@ -234,20 +234,20 @@ router.delete('/', auth, (req, res) => {
               },
               {
                 $set: {
-                  blogs: blogsArr,
+                  items: itemsArr,
                 },
               },
               {
                 new: true,
               },
             ),
-            deletedBlog.shared ? Shared.findOneAndRemove({ blogId: req.body.blogId }) : null,
+            deletedItem.shared ? Shared.findOneAndRemove({ itemId: req.body.itemId }) : null,
           ])
             .then((values) => {
               return res.status(200).json({
                 error: false,
-                blogs: values[0].blogs,
-                deletedBlog,
+                items: values[0].items,
+                deletedItem,
               });
             })
             .catch((err) => {
@@ -260,7 +260,7 @@ router.delete('/', auth, (req, res) => {
         } else {
           return res.status(400).json({
             error: true,
-            errorType: 'blogId',
+            errorType: 'itemId',
             errorMessage: 'Specified item not found.',
           });
         }

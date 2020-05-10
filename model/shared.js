@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 // This schema however won't validate most of the following properties properly. It just makes sure that valid types is provided and is present in the object. Make use of joi to validate before insertion.
 let SharedSchema = new Schema({
-  blogId: {
+  itemId: {
     type: String,
     required: true,
   },

@@ -58,7 +58,7 @@ router.post('/', (req, res) => {
             return res.status(200).json({
               error: false,
               jwtToken,
-              blogs: result.blogs,
+              items: result.items,
             });
           }
         });

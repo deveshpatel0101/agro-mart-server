@@ -10,7 +10,7 @@ describe('mongoose.user schema', () => {
       latitude: 90,
       longitude: 180,
     },
-    blogs: [],
+    items: [],
   };
 
   let obj = undefined;
@@ -92,22 +92,22 @@ describe('mongoose.user schema', () => {
     obj.position.longitude = 180;
   });
 
-  it('should properly validate invalid blogs array', () => {
-    // invalid blogs: not present
+  it('should properly validate invalid items array', () => {
+    // invalid items: not present
     obj = { ...googleUserObj };
-    delete obj.blogs;
+    delete obj.items;
     error = new User(obj).validateSync();
-    expect(error.errors.blogs.properties.path).toBe('blogs');
+    expect(error.errors.items.properties.path).toBe('items');
 
-    // invalid blogs: invalid type
-    obj.blogs = 'invalid type';
+    // invalid items: invalid type
+    obj.items = 'invalid type';
     error = new User(obj).validateSync();
-    expect(error.errors.blogs.properties.path).toBe('blogs');
+    expect(error.errors.items.properties.path).toBe('items');
 
-    // invalid blogs: invalid length
-    obj.blogs = ['something'];
+    // invalid items: invalid length
+    obj.items = ['something'];
     error = new User(obj).validateSync();
-    expect(error.errors.blogs.properties.path).toBe('blogs');
+    expect(error.errors.items.properties.path).toBe('items');
   });
 
   it('should properly validate valid user object', () => {

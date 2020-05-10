@@ -12,7 +12,7 @@ describe('joi google validator', () => {
       latitude: 90,
       longitude: 180,
     },
-    blogs: [],
+    items: [],
   };
 
   let obj = undefined;
@@ -100,23 +100,23 @@ describe('joi google validator', () => {
     delete obj.position.unknownField;
   });
 
-  it('should properly validate invalid blogs array', () => {
-    // invalid blogs: not present
+  it('should properly validate invalid items array', () => {
+    // invalid items: not present
     obj = { ...googleObj };
-    delete obj.blogs;
+    delete obj.items;
     result = Joi.validate(obj, googleSchema);
-    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogs']));
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['items']));
 
-    // invalid blogs: invalid type
-    obj.blogs = 'invalid type';
+    // invalid items: invalid type
+    obj.items = 'invalid type';
     result = Joi.validate(obj, googleSchema);
-    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogs']));
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['items']));
 
-    // invalid blogs: invalid length
-    obj.blogs = ['something'];
+    // invalid items: invalid length
+    obj.items = ['something'];
     result = Joi.validate(obj, googleSchema);
-    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogs']));
-    delete obj.blogs;
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['items']));
+    delete obj.items;
   });
 
   it('should properly validate invalid unknown fields', () => {

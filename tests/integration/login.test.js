@@ -1,6 +1,6 @@
 const User = require('../../model/user');
 const request = require('supertest');
-const { createBlog, originalUser } = require('./blogs.test');
+const { createItem, originalUser } = require('./items.test');
 let server;
 
 describe('/user/login', () => {
@@ -14,11 +14,11 @@ describe('/user/login', () => {
       .send({ email: originalUser.email, password: originalUser.password });
     const token = body.jwtToken;
     await request(server)
-      .post('/user/blogs?token=' + token)
-      .send(createBlog());
+      .post('/user/items?token=' + token)
+      .send(createItem());
     await request(server)
-      .post('/user/blogs?token=' + token)
-      .send(createBlog());
+      .post('/user/items?token=' + token)
+      .send(createItem());
   });
 
   afterEach(async () => {
@@ -88,19 +88,19 @@ describe('/user/login', () => {
       expect(result.body.error).toBeFalsy();
       expect(result.body).toHaveProperty('jwtToken');
       let dbResult = await User.findOne({ email: loginUser.email });
-      expect(dbResult.blogs).toEqual(result.body.blogs);
+      expect(dbResult.items).toEqual(result.body.items);
     });
 
-    it('should return valid token and user should be able to get all blogs using that token', async () => {
+    it('should return valid token and user should be able to get all items using that token', async () => {
       let result = await request(server)
         .post('/user/login')
         .send(user);
       const token = result.body.jwtToken;
       result = await request(server)
-        .get('/user/blogs?token=' + token)
+        .get('/user/items?token=' + token)
         .send();
       let dbResult = await User.findOne({ email: loginUser.email });
-      expect(dbResult.blogs).toEqual(result.body.blogs);
+      expect(dbResult.items).toEqual(result.body.items);
     });
   });
 });

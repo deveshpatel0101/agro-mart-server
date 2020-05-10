@@ -27,7 +27,7 @@ module.exports.registerSchema = {
   accountType: Joi.string()
     .regex(/^local$/)
     .required(),
-  blogs: Joi.array()
+  items: Joi.array()
     .length(0)
     .required(),
 };

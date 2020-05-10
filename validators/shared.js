@@ -1,7 +1,7 @@
 const Joi = require('joi');
 
 module.exports.sharedSchema = {
-  blogId: Joi.string()
+  itemId: Joi.string()
     .guid({ version: ['uuidv4'] })
     .required(),
   values: Joi.object({
@@ -9,7 +9,7 @@ module.exports.sharedSchema = {
   }).required(),
 };
 
-module.exports.getSharedBlogsSchema = {
+module.exports.getSharedItemsSchema = {
   q: Joi.string(),
   page: Joi.number().min(1),
   per_page: Joi.number().min(0).max(100)

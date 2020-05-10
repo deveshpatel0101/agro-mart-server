@@ -11,7 +11,7 @@ router.post('/register', (req, res) => {
   let googleUser = {
     ...req.body,
     accountType: 'google',
-    blogs: [],
+    items: [],
   };
   const result = Joi.validate(googleUser, googleSchema);
   if (result.error) {
@@ -58,7 +58,7 @@ router.post('/register', (req, res) => {
                 return res.status(200).json({
                   error: false,
                   jwtToken,
-                  blogs: [],
+                  items: [],
                 });
               })
               .catch((err) => {
@@ -121,7 +121,7 @@ router.post('/login', (req, res) => {
           return res.status(200).json({
             error: false,
             jwtToken: generateJwt(response.id),
-            blogs: response.blogs,
+            items: response.items,
           });
         })
         .catch((err) => {

@@ -2,7 +2,7 @@ const Shared = require('../../../model/shared');
 
 describe('mongoose.shared schema', () => {
   const validSharedObj = {
-    blogId: '394872309487987534',
+    itemId: '394872309487987534',
     title: 'something',
     description: 'somethinglkajiou  9834hdfkj  aiuh',
     createdAt: 973409874,
@@ -17,12 +17,12 @@ describe('mongoose.shared schema', () => {
   let obj = undefined;
   let error = undefined;
 
-  it("should properly validate invalid blog id's", () => {
-    // invalid blogId: not present
+  it("should properly validate invalid item id's", () => {
+    // invalid itemId: not present
     obj = { ...validSharedObj };
-    delete obj.blogId;
+    delete obj.itemId;
     error = new Shared(obj).validateSync();
-    expect(error.errors.blogId.properties.path).toBe('blogId');
+    expect(error.errors.itemId.properties.path).toBe('itemId');
   });
 
   it('should properly validate invalid title', () => {

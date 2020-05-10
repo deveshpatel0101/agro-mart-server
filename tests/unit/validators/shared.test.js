@@ -1,10 +1,10 @@
 const Joi = require('joi');
 const uuid = require('uuid/v4');
-const { sharedSchema, getSharedBlogsSchema } = require('../../../validators/shared');
+const { sharedSchema, getSharedItemsSchema } = require('../../../validators/shared');
 
 describe('joi shared schema', () => {
   const sharedObj = {
-    blogId: uuid(),
+    itemId: uuid(),
     values: {
       shared: false,
     },
@@ -13,17 +13,17 @@ describe('joi shared schema', () => {
   let obj = undefined;
   let result = undefined;
 
-  it('should properly valid invalid blogId', () => {
-    // invalid blogId: not present
+  it('should properly valid invalid itemId', () => {
+    // invalid itemId: not present
     obj = { ...sharedObj };
-    delete obj.blogId;
+    delete obj.itemId;
     result = Joi.validate(obj, sharedSchema);
-    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogId']));
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['itemId']));
 
-    // invalid blogId: invalid uuid
-    obj.blogId = 'invalid uuid';
+    // invalid itemId: invalid uuid
+    obj.itemId = 'invalid uuid';
     result = Joi.validate(obj, sharedSchema);
-    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['blogId']));
+    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['itemId']));
   });
 
   it('should properly validate invalid values object', () => {
@@ -68,7 +68,7 @@ describe('joi shared schema', () => {
   });
 });
 
-describe('joi get shared blogs', () => {
+describe('joi get shared items', () => {
   let obj = {
     page: 1,
     per_page: 10,
@@ -79,13 +79,13 @@ describe('joi get shared blogs', () => {
   it('should properly validate invalid per_page', () => {
     // invalid per_page: negative value
     obj.per_page = -1;
-    result = Joi.validate(obj, getSharedBlogsSchema);
+    result = Joi.validate(obj, getSharedItemsSchema);
     expect(result.error.details[0].path).toEqual(expect.arrayContaining(['per_page']));
     obj.per_page = 10;
 
     // invalid per_page: more than 100
     obj.per_page = 101;
-    result = Joi.validate(obj, getSharedBlogsSchema);
+    result = Joi.validate(obj, getSharedItemsSchema);
     expect(result.error.details[0].path).toEqual(expect.arrayContaining(['per_page']));
     obj.per_page = 10;
   });
@@ -93,12 +93,12 @@ describe('joi get shared blogs', () => {
   it('should properly validate inalid page', () => {
     // invalid page: equal to zero value
     obj.page = 0;
-    result = Joi.validate(obj, getSharedBlogsSchema);
+    result = Joi.validate(obj, getSharedItemsSchema);
     expect(result.error.details[0].path).toEqual(expect.arrayContaining(['page']));
 
     // invalid page: negative value
     obj.page = -1;
-    result = Joi.validate(obj, getSharedBlogsSchema);
+    result = Joi.validate(obj, getSharedItemsSchema);
     expect(result.error.details[0].path).toEqual(expect.arrayContaining(['page']));
   });
 });

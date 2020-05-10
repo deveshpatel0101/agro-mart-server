@@ -15,7 +15,7 @@ module.exports = () => {
   winston.add(new winston.transports.File({ filename: 'logfile.log' }));
   winston.add(
     new winston.transports.MongoDB({
-      db: process.env.MONGODB_TEST || 'mongodb://localhost:27017/my_blog_logs',
+      db: process.env.MONGODB_TEST || 'mongodb://localhost:27017/my_item_logs',
     }),
   );
   winston.exceptions.handle(
