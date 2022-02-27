@@ -16,18 +16,8 @@ Follow below steps to start development environment:
 1. Download or clone this repository.
 2. cd into this folder `cd agro-mart-server`.
 3. Install the required dependencies using `npm install` command.
-4. Before starting the development server you need to set two environmental variables. Skip this step if you don't want to set environmental variables permanently. However you will still need to set these variables while starting the server.
-
-   - `export AGRO_MART_JWT_KEY=your_jwt_key`
-   - `export AGRO_MART_GOOGLE_CLIENT_ID=your_google_client_id`
-
-**Note**: The above google client id must similar to one used in [agro-mart-client](https://github.com/deveshpatel0101/agro-mart-client) project.
-
-5. Once dependencies are installed, now it's time to start development server. Follow below steps:
-   - If you have followed `step:4` then run `node app.js` command to start localhost server. A new tab will automatically open in your default browser if not then the server will be started on [http://localhost:5000](http://localhost:5000).
-   - If you have skipped `step:4` then run `AGRO_MART_JWT_KEY=your_jwt_key AGRO_MART_GOOGLE_CLIENT_ID=your_google_client_id node app.js` command
-
-**Note**: If you want auto-reload on changing files then make use of nodemon package. You just need to replace `node` with `nodemon` in above `step: 5`.
+4. Before starting the development server you need to set an environmental variable. Set `jwtKey` value found in `/config/default.json` file.
+5. Once dependencies are installed, now it's time to start development server. Run `node app.js` command to start localhost server. The server will start on [http://localhost:5000](http://localhost:5000).
 
 #### Testing
 
