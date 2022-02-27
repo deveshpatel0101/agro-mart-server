@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const uuid = require('uuid/v4');
 const Schema = mongoose.Schema;
 
 // This schema however won't validate most of the following properties properly. It just makes sure that valid types is provided and is present in the object. Make use of joi to validate before insertion.

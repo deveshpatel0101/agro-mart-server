@@ -1,3 +1,4 @@
 {
-  "name": "Agro Mart --Development"
+  "name": "Agro Mart --Development",
+	"mongodb": "mongodb://localhost:27017/agro_mart"
 }

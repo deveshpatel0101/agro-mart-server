@@ -1,4 +1,6 @@
 {
-  "name": "Agro Mart - Default",
-  "jwtKey": "jwtKey"
+  "name": "Agro Mart --Default",
+  "jwtKey": "jwtKey",
+	"mongodb": "mongodb://localhost:27017/agro_mart",
+	"winstonMongodb": "mongodb://localhost:27017/agro_mart_logs"
 }

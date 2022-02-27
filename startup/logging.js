@@ -1,3 +1,4 @@
+const config = require('config');
 const winston = require('winston');
 
 require('winston-mongodb');
@@ -13,9 +14,9 @@ module.exports = () => {
   });
 
   winston.add(new winston.transports.File({ filename: 'logfile.log' }));
-  winston.add(
+	winston.add(
     new winston.transports.MongoDB({
-      db: process.env.MONGODB_TEST || 'mongodb://localhost:27017/my_item_logs',
+      db: config.get('winstonMongodb'),
     }),
   );
   winston.exceptions.handle(

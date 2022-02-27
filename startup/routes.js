@@ -21,7 +21,6 @@ module.exports = (app) => {
     }
     next();
   });
-
   // Serving static files
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());

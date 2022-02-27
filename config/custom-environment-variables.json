@@ -1,3 +1,5 @@
 {
-  "jwtKey": "AGRO_MART_JWT_KEY"
+	"jwtKey": "AGRO_MART_JWT_KEY",
+	"mongodb": "AGRO_MART_MONGODB",
+	"winstonMongodb": "AGRO_MART_WINSTON_MONGODB"
 }

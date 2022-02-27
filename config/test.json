@@ -1,3 +1,5 @@
 {
-  "name": "Agro Mart --Test"
+	"name": "Agro Mart --Test",
+	"mongodb": "mongodb://localhost:27017/agro_mart_test",
+	"winstonMongodb": "mongodb://localhost:27017/agro_mart_logs"
 }
