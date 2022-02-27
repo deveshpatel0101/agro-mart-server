@@ -1,5 +1,4 @@
 {
   "name": "Agro Mart - Default",
-  "jwtKey": "jwtKey",
-  "googleClientId": "googleClientId"
+  "jwtKey": "jwtKey"
 }

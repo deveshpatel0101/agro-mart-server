@@ -4,7 +4,6 @@ const item = require('../routes/items');
 const shared = require('../routes/shared');
 const login = require('../routes/login');
 const register = require('../routes/register');
-const google = require('../routes/google');
 const error = require('../middleware/error');
 
 module.exports = (app) => {
@@ -28,7 +27,6 @@ module.exports = (app) => {
   app.use(bodyParser.json());
 
   // REST API's
-  app.use('/user/auth/google', google);
   app.use('/user/items', item);
   app.use('/public/shared', shared);
   app.use('/user/login', login);

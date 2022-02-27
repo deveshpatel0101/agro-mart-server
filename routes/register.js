@@ -7,7 +7,6 @@ const { registerSchema } = require('../validators/register');
 router.post('/', (req, res) => {
   let userObj = {
     ...req.body,
-    accountType: 'local',
     items: [],
   };
   const result = Joi.validate(userObj, registerSchema);

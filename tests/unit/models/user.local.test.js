@@ -5,7 +5,6 @@ describe('mongoose.user schema', () => {
     username: 'something',
     email: 'something@gmail.com',
     password: 'Something12@',
-    accountType: 'local',
     position: {
       latitude: 90,
       longitude: 180,
@@ -52,27 +51,6 @@ describe('mongoose.user schema', () => {
     obj.password = 'something';
     error = new User(obj).validateSync();
     expect(error.errors.password.properties.path).toBe('password');
-  });
-
-  it('should properly validate invalid account type', () => {
-    // invalid accountType: not present
-    obj = { ...localUserObj };
-    delete obj.accountType;
-    error = new User(obj).validateSync();
-    expect(error.errors.accountType.properties.path).toBe('accountType');
-
-    // invalid accountType: invalid value
-    obj.accountType = 'something';
-    error = new User(obj).validateSync();
-    expect(error.errors.accountType.properties.path).toBe('accountType');
-  });
-
-  it('should properly validate invalid access tokens', () => {
-    // invalid accessToken: is present
-    obj = { ...localUserObj };
-    obj.accessToken = 'w98798iuhfkjshf';
-    error = new User(obj).validateSync();
-    expect(error.errors.accessToken.properties.path).toBe('accessToken');
   });
 
   it('should properly validate invalid position object', () => {

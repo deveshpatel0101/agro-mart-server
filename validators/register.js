@@ -24,9 +24,6 @@ module.exports.registerSchema = {
       .max(180)
       .required(),
   }).required(),
-  accountType: Joi.string()
-    .regex(/^local$/)
-    .required(),
   items: Joi.array()
     .length(0)
     .required(),

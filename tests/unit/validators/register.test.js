@@ -11,7 +11,6 @@ describe('joi register validator', () => {
       latitude: 90,
       longitude: 180,
     },
-    accountType: 'local',
     items: [],
   };
 
@@ -103,19 +102,6 @@ describe('joi register validator', () => {
     result = Joi.validate(obj, registerSchema);
     expect(result.error.details[0].path).toEqual(expect.arrayContaining(['unknownField']));
     delete obj.position.unknownField;
-  });
-
-  it('should properly validate invalid account type', () => {
-    // invalid accountType: not present
-    obj = { ...registerObj };
-    delete obj.accountType;
-    result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['accountType']));
-
-    // invalid accountType: invalid value
-    obj.accountType = 'invalid value';
-    result = Joi.validate(obj, registerSchema);
-    expect(result.error.details[0].path).toEqual(expect.arrayContaining(['accountType']));
   });
 
   it('should properly validate invalid items array', () => {

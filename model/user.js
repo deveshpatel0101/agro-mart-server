@@ -32,40 +32,9 @@ let UserSchema = new Schema({
   },
   password: {
     type: String,
-    required: function() {
-      return this.accountType !== 'google';
-    },
-    validate: function() {
-      if (this.accountType === 'google' && !this.password) {
-        return true;
-      } else if (this.accountType === 'google' && this.password) {
-        return false;
-      } else {
-        return new RegExp(passwordRegex).test(this.password);
-      }
-    },
-  },
-  accountType: {
-    type: String,
     required: true,
-    enum: ['google', 'local'],
-  },
-  accessToken: {
-    type: String,
-    required: function() {
-      return this.accountType === 'google';
-    },
     validate: function() {
-      return (
-        (this.accountType === 'local' && this.accessToken === undefined) ||
-        this.accountType === 'google'
-      );
-    },
-  },
-  googleId: {
-    type: String,
-    required: function() {
-      this.accountType === 'google';
+        return new RegExp(passwordRegex).test(this.password);
     },
   },
   items: {

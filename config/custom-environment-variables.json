@@ -1,4 +1,3 @@
 {
-  "jwtKey": "AGRO_MART_JWT_KEY",
-  "googleClientId": "AGRO_MART_GOOGLE_CLIENT_ID"
+  "jwtKey": "AGRO_MART_JWT_KEY"
 }
